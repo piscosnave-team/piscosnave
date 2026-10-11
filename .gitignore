@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
