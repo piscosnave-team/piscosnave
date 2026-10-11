@@ -93,7 +93,8 @@ export default defineConfig({
       name: 'visual',
       testDir: './tests/visual',
       testMatch: '**/*.spec.js',
-      use: { ...pinned, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' },
+      // reduced motion = the static layout (default); the settled-3D specs override it per describe and rely on SwiftShader
+      use: { ...pinned, ...swiftshader, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' },
     },
   ],
 });
