@@ -8,16 +8,20 @@
  *   - S4: picking an edition updates #ctaTexto/#ctaPedido; picking it again resets; #lasTres shows the collection total
  *   - S5: data-ir links reach their segment, #marca anchor works, legal toggles open/close with aria-expanded
  *   - S6: no horizontal overflow at 320, 375 and 768 through a full scroll sweep; header controls inside the viewport at 320
+ *   - P1 (E5): first view at mobile-375 (DPR 2, no stored consent) weighs <= 307,200 B: gzip -9 for text, raw for images;
+ *     3D library, textures, js/escena.js and lazy images excluded; desktop total is logged, never asserted
  * @edge-cases
  *   - the WhatsApp number is read from window.NAVE_CONFIG at runtime, never written in a test (owner-gated, TC15)
  *   - S3/S4 double as characterization of owner-gated values: prices and message text must not change in this PR
  *   - mode-aware: after E7 the same specs must pass in static mode (no pin) - helpers handle both
  * @see ./helpers/page.js
  * @see ./helpers/scroll.js
+ * @see ./helpers/budget.js
  */
 import { expectedRed } from './helpers/expected-red.js';
 import { runIn } from './helpers/projects.js';
 import { configuredNumbers, expect, openPage, test, waNumberOf, waTextOf } from './helpers/page.js';
+import { BUDGET_BYTES, trackFirstView } from './helpers/budget.js';
 import { getModo, waitSettled } from './helpers/ready.js';
 import { pinRange, scrollToOrderWidget, waitScrollIdle } from './helpers/scroll.js';
 
@@ -232,4 +236,36 @@ test.describe('S6 no horizontal overflow', () => {
       }
     });
   }
+});
+
+test.describe('P1 first-view budget (spec 4.6)', () => {
+  test.describe('mobile-375', () => {
+    runIn(test, 'mobile-375');
+
+    test('P1 the first view weighs at most 300 KB (gzip -9 text, raw images, without the 3D library, textures and lazy images)', async ({ page }, testInfo) => {
+      expectedRed(test, 'E5', 'index.html embeds ~1 MB of base64 images, so the document alone is far over 307,200 B');
+      test.setTimeout(120_000);
+      const view = trackFirstView(page);
+      await openPage(page, { consent: false }); // fresh context, no stored consent: the age gate is part of the first view
+      const report = await view.report();
+      console.log(`[P1 mobile-375]\n${report.breakdown}`);
+      await testInfo.attach('first-view-breakdown', { body: report.breakdown, contentType: 'text/plain' });
+      expect(report.rows.some((r) => r.type.includes('html')), 'the document itself was measured').toBe(true);
+      expect(report.total, `first-view bytes (see breakdown above); hero candidate: ${report.hero.startsWith('data:') ? 'inline data URI' : report.hero}`).toBeLessThanOrEqual(BUDGET_BYTES);
+    });
+  });
+
+  test.describe('desktop (informational)', () => {
+    runIn(test, 'desktop');
+
+    test('P1 desktop first-view total is logged, not asserted', async ({ page }, testInfo) => {
+      test.setTimeout(120_000);
+      const view = trackFirstView(page);
+      await openPage(page, { consent: false });
+      const report = await view.report();
+      console.log(`[P1 desktop, informational]\n${report.breakdown}`);
+      await testInfo.attach('first-view-breakdown-desktop', { body: report.breakdown, contentType: 'text/plain' });
+      expect(report.rows.some((r) => r.type.includes('html')), 'the document itself was measured').toBe(true);
+    });
+  });
 });
