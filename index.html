@@ -133,10 +133,16 @@ button{font:inherit;color:inherit}
 .trio-cabeza > *{opacity:0}
 .trio-cabeza h2{font-size:clamp(2.2rem,4.4vw,3.8rem);letter-spacing:-0.04em}
 .trio-cabeza p{margin-top:.6rem;color:var(--tinta-2)}
-.trio-arcos{--th:min(46svh,440px);position:absolute;z-index:1;left:50%;translate:-50% 0;top:calc(var(--barra) + 4svh + clamp(110px,15svh,150px));display:flex;gap:clamp(16px,2.6vw,40px);visibility:hidden}
-.slot{position:relative;display:grid;justify-items:center;gap:12px;padding:0;border:0;background:none;cursor:pointer;width:calc(var(--th)*.64)}
+.trio-arcos{--th:min(46svh,440px);position:absolute;z-index:1;left:50%;translate:-50% 0;top:calc(var(--barra) + 4svh + clamp(110px,15svh,150px));display:flex;gap:clamp(30px,4vw,64px);visibility:hidden}
+.slot{position:relative;display:grid;justify-items:center;gap:14px;padding:0;border:0;background:none;cursor:pointer;width:calc(var(--th)*.64);transition:filter 500ms var(--ease-out),opacity 500ms var(--ease-out),transform 500ms var(--ease-out)}
+/* enfoque: la elegida se acerca, las demás se desenfocan */
+.trio-arcos.con-eleccion .slot{filter:blur(4px) saturate(.55);opacity:.42;transform:scale(.93)}
+.trio-arcos.con-eleccion .slot[aria-pressed="true"]{filter:none;opacity:1;transform:scale(1.04)}
+@media (hover:hover){.trio-arcos.con-eleccion .slot:not([aria-pressed="true"]):hover{filter:blur(1.5px) saturate(.8);opacity:.7}}
+.con-3d .trio-arco .respaldo{visibility:visible;opacity:0;bottom:3.5%;filter:drop-shadow(0 14px 12px rgba(0,0,0,.35))}
+.trio-arco[data-arco="donaire"] .respaldo{height:79%}.trio-arco[data-arco="sunqu"] .respaldo{height:82.4%}.trio-arco[data-arco="nii"] .respaldo{height:86%}
 .trio-arco{position:relative;width:100%;height:var(--th);opacity:0}
-.trio-arco::after{content:"";position:absolute;inset:-9px;border:2px solid var(--granate);border-radius:50% 50% 6px 6px / 33% 33% 6px 6px;opacity:0;transform:scale(.97);transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}
+.trio-arco::after{content:"";position:absolute;inset:-7px;border:2px solid var(--granate);border-radius:50% 50% 6px 6px / 33% 33% 6px 6px;opacity:0;transform:scale(.97);transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}
 .slot[aria-pressed="true"] .trio-arco::after{opacity:1;transform:none}
 @media (hover:hover){.slot:hover .trio-arco::after{opacity:.35;transform:none}.slot[aria-pressed="true"]:hover .trio-arco::after{opacity:1}}
 .slot .etiqueta{display:flex;align-items:baseline;gap:10px;opacity:0}
@@ -171,8 +177,8 @@ button{font:inherit;color:inherit}
   .pasos,.arrastra{display:none!important}
   .trio-cabeza h2{font-size:clamp(1.8rem,8vw,2.4rem)}
   .trio-cabeza p{font-size:.9375rem}
-  .etapa{--th:min(30svh,calc((100vw - 2*var(--gutter) - 24px)/3/.64))}
-  .trio-arcos{--th:inherit;gap:12px;top:calc(var(--barra) + 4svh + 120px)}
+  .etapa{--th:min(30svh,calc((100vw - 2*var(--gutter) - 40px)/3/.64))}
+  .trio-arcos{--th:inherit;gap:20px;top:calc(var(--barra) + 4svh + 120px)}
   .trio-pie{top:calc(var(--barra) + 4svh + 120px + var(--th) + 84px);bottom:auto}
   .slot .etiqueta{flex-direction:column;align-items:center;gap:0}
   .slot .etiqueta b{font-size:1rem}
@@ -206,10 +212,7 @@ button{font:inherit;color:inherit}
 /* ================= MANIFIESTO ================= */
 .manifiesto-sec{position:relative;z-index:5;background:var(--granate);color:var(--blanco);padding-block:clamp(96px,14svh,170px)}
 .manifiesto{display:grid;gap:.1em;font-size:clamp(1.7rem,4.2vw,3.6rem);font-weight:700;letter-spacing:-0.035em;line-height:1.12}
-.manifiesto li{opacity:.28;transition:opacity 600ms var(--ease-out)}
-.manifiesto li.vista{opacity:1}
 .manifiesto-sec .cierre-m{margin-top:clamp(40px,7svh,72px);color:var(--rosa-claro);font-size:clamp(1.05rem,1.4vw,1.25rem);max-width:40ch}
-@media (prefers-reduced-motion:reduce){.manifiesto li{opacity:1}}
 
 /* ================= CIERRE Y PIE ================= */
 .cierre{position:relative;z-index:5;background:var(--blanco);padding-block:clamp(88px,13svh,140px);text-align:center}
@@ -386,11 +389,11 @@ button{font:inherit;color:inherit}
   <section class="manifiesto-sec" aria-label="Manifiesto">
     <div class="wrap">
       <ol class="manifiesto" id="manifiesto">
-        <li>Ica es nuestro punto de partida.</li>
-        <li>La quebranta, nuestra uva.</li>
-        <li>Nancy, nuestra firma.</li>
-        <li>Cada prenda, una forma de contar el Perú.</li>
-        <li>Cada botella, una invitación a compartir.</li>
+        <li data-r>Ica es nuestro punto de partida.</li>
+        <li data-r>La quebranta, nuestra uva.</li>
+        <li data-r>Nancy, nuestra firma.</li>
+        <li data-r>Cada prenda, una forma de contar el Perú.</li>
+        <li data-r>Cada botella, una invitación a compartir.</li>
       </ol>
       <p class="cierre-m" data-r>El valor está en el origen del pisco y en las manos que visten cada botella.</p>
     </div>
@@ -686,6 +689,7 @@ window.NAVE_ELECCION = -1;
   const T = k => NAVE_REGION.t(k);
   function elige(i){
     window.NAVE_ELECCION = i;
+    document.getElementById('trioArcos').classList.toggle('con-eleccion', i >= 0 && i <= 2);
     slots.forEach((s,k)=>s.setAttribute('aria-pressed', String(i === 3 || i === k)));
     tres.setAttribute('aria-pressed', String(i === 3));
     if (i === -1){ ctaT.textContent = T('pedir'); nota.textContent = T('notaBase'); NAVE_WA(cta, ''); return; }
@@ -737,10 +741,13 @@ let renderer = null;
 try { renderer = new THREE.WebGLRenderer({canvas:document.getElementById('escena'), antialias:true, alpha:true, powerPreference:'high-performance'}); } catch(e){ renderer = null; }
 
 /* textos fuera de la etapa: aparecen con el scroll */
+/* cada texto entra desde abajo al aparecer y sale hacia arriba al irse, siempre ligado al scroll */
 if (!reduce) gsap.utils.toArray('[data-r]').forEach(el=>{
-  gsap.fromTo(el, {opacity:0, y:36, filter:'blur(6px)'}, {opacity:1, y:0, filter:'blur(0px)', ease:'none', scrollTrigger:{trigger:el, start:'top 94%', end:'top 66%', scrub:0.5}});
+  const tl = gsap.timeline({scrollTrigger:{trigger:el, start:'top 96%', end:'bottom 4%', scrub:0.6, refreshPriority:-1}});
+  tl.fromTo(el, {opacity:0, y:46, filter:'blur(10px)'}, {opacity:1, y:0, filter:'blur(0px)', duration:0.28, ease:'power2.out'})
+    .to(el, {opacity:1, duration:0.44})
+    .to(el, {opacity:0, y:-46, filter:'blur(10px)', duration:0.28, ease:'power2.in'});
 });
-document.querySelectorAll('#manifiesto li').forEach(li=>ST.create({trigger:li, start:'top 72%', onEnter:()=>li.classList.add('vista'), onLeaveBack:()=>li.classList.remove('vista')}));
 
 if (reduce || !renderer){ estatica(); throw new Error('Versión estática'); }
 
@@ -769,11 +776,14 @@ const luz = document.getElementById('luz'), hCaja = document.getElementById('hCa
 gsap.from('.intro-a > *, .intro-b > *', {opacity:0, y:28, filter:'blur(6px)', duration:1.1, ease:'expo.out', stagger:0.08, delay:0.15, clearProps:'filter'});
 
 /* revela una lista de elementos en cascada según el scroll */
-function cascada(hijos, e, desde, paso, salida){
+/* cada línea entra desde abajo y, al salir, sube y se desvanece una tras otra */
+function cascada(hijos, e, desde, paso, hasta){
   hijos.forEach((h,i)=>{
-    const a = desde + i*paso, v = sstep(a, a + 0.18, e)*(1 - salida);
-    h.style.opacity = v; h.style.transform = `translate3d(0,${(1-v)*26}px,0)`;
-    h.style.filter = v > 0.99 || v < 0.01 ? 'none' : `blur(${(1-v)*6}px)`;
+    const a = desde + i*paso, vin = sstep(a, a + 0.16, e);
+    const vout = hasta == null ? 0 : sstep(hasta + i*0.022, hasta + i*0.022 + 0.13, e);
+    const v = vin*(1 - vout), b = Math.max(1 - vin, vout);
+    h.style.opacity = v; h.style.transform = `translate3d(0,${((1-vin)*40 - vout*40).toFixed(1)}px,0)`;
+    h.style.filter = b < 0.01 ? 'none' : `blur(${(b*9).toFixed(1)}px)`;
   });
 }
 function pintaDom(p){
@@ -799,9 +809,9 @@ function pintaDom(p){
     nichos[k].style.zIndex = k;
     nichos[k].style.clipPath = k===0 ? `inset(${(1-entra)*100}% 0 0 0 round 50% 50% 0 0 / 32% 32% 0 0)` : `inset(${(1-entra)*100}% 0 0 0)`;
     ARC.mover(arcos[k], nichos[k].dataset.arco, clamp01((e - k + 0.2)/1.1));
-    const salida = sstep(k+0.7, k+0.86, e);
+    const salida = sstep(k+0.66, k+0.92, e);
     const t = textos[k];
-    cascada(t.hijos, e, k===0 ? -0.1 : k-0.02, 0.05, salida);
+    cascada(t.hijos, e, k===0 ? -0.1 : k-0.02, 0.045, k+0.62);
     const vis = sstep(k-0.1, k+0.1, e)*(1 - salida);
     t.el.style.visibility = vis < 0.01 ? 'hidden' : 'visible';
     nombresF[k].style.opacity = vis*0.9;
@@ -818,9 +828,12 @@ function pintaDom(p){
   nichosEl.style.opacity = 1 - sstep(0.96, 1, viaje);
   const rev = [sstep(3.1, 3.4, e), sstep(3.2, 3.5, e), sstep(0.94, 1, viaje)];
   trioArcosEl.forEach((el,i)=>{ el.style.opacity = rev[i] > 0.001 ? 1 : 0; el.style.clipPath = i===2 || rev[i] > 0.999 ? 'none' : `inset(${(1-rev[i])*100}% 0 0 0)`; });
-  cascada(etiquetas, e, 3.4, 0.05, 0);
-  cascada([...trioCab.children], e, 3.15, 0.06, 0);
-  cascada([...trioPie.children], e, 3.45, 0.05, 0);
+  cascada(etiquetas, e, 3.4, 0.05);
+  cascada([...trioCab.children], e, 3.15, 0.06);
+  cascada([...trioPie.children], e, 3.45, 0.05);
+  /* ya colocadas, las botellas del trío pasan a imagen para que el enfoque y desenfoque las afecte */
+  const fijo = sstep(3.56, 3.7, e);
+  trioArcosEl.forEach(el=>{ el.querySelector('.respaldo').style.opacity = fijo; });
   trioCab.style.visibility = trioPie.style.visibility = e > 3.1 ? 'visible' : 'hidden';
 
   const activo = Math.max(0, Math.min(2, Math.floor(e + 0.1)));
@@ -829,7 +842,7 @@ function pintaDom(p){
   pasos.style.opacity = enCol; arrastra.style.opacity = enCol;
   zona.style.display = enCol > 0.5 ? 'block' : 'none';
   if (enCol > 0.5){ const nr = nichosEl.getBoundingClientRect(); Object.assign(zona.style, {left:nr.left+'px', top:nr.top+'px', width:nr.width+'px', height:nr.height+'px'}); }
-  return {trio: rTrio, rev};
+  return {trio: rTrio, rev, fijo};
 }
 
 /* ===================== 3D ===================== */
@@ -967,17 +980,17 @@ function frame(){
   if (traje !== prota.actual){ prota.trajes[prota.actual].grupo.visible = false; prota.trajes[traje].grupo.visible = true; prota.actual = traje; }
   const pos = {x: lerp(hero[0].x, nicho.x, viaje), y: lerp(hero[0].y, nicho.y, viaje), s: lerp(hero[0].s, nicho.s, viaje)};
   const balanceo = Math.sin(t*0.5)*0.26 - 0.28;
-  const vaiven = e > 0 && e < 3 ? 0.4*Math.sin(Math.PI*2*e) : Math.sin(t*0.5)*0.14;
-  const elegidaP = e > 3 && (window.NAVE_ELECCION === 2 || window.NAVE_ELECCION === 3);
-  prota.esc = lerp(prota.esc, elegidaP ? 1.05 : 1, 0.12);
+  const quieta = 1 - sstep(3.38, 3.56, e);
+  const vaiven = e > 0 && e < 3 ? 0.4*Math.sin(Math.PI*2*e) : Math.sin(t*0.5)*0.14*quieta;
   prota.g.position.set(pos.x, pos.y + desp + (1-ei)*-0.4 - baja*pos.s*0.9, 0.15*(1-viaje));
-  prota.g.scale.setScalar(pos.s*(0.82 + 0.18*ei)*prota.esc);
-  prota.giro.rotation.y = limita(lerp(balanceo, 0, viaje) + vaiven + arrastre) + (1-ei)*-1.2;
+  prota.g.scale.setScalar(pos.s*(0.82 + 0.18*ei));
+  prota.giro.rotation.y = limita(lerp(balanceo, 0, viaje) + vaiven + arrastre*quieta) + (1-ei)*-1.2;
   prota.g.rotation.x = my*0.04;
-  prota.trajes.forEach(tr=>opacidad(tr.mats, alfa));
-  prota.sombra.opacity = alfa;
+  const alfaP = alfa*(1 - dom.fijo);
+  prota.trajes.forEach(tr=>opacidad(tr.mats, alfaP));
+  prota.sombra.opacity = alfaP;
   prota.trajes[0].refl.forEach(m=>m.opacity = 0.32*(1 - sstep(0.05, 0.35, p)));
-  prota.g.visible = vivaEtapa;
+  prota.g.visible = vivaEtapa && alfaP > 0.01;
 
   acomp.forEach((a,j)=>{
     const i = j+1, h = hero[i];
@@ -991,13 +1004,12 @@ function frame(){
 
   trioB.forEach((b,i)=>{
     const r = dom.trio[i], q = dom.rev[i], c = enCaja(r, r.left + r.width/2, 0.86);
-    const elegida = window.NAVE_ELECCION === i || window.NAVE_ELECCION === 3;
-    b.esc = lerp(b.esc, elegida ? 1.05 : 1, 0.12);
+    const a = q*(1 - dom.fijo);
     b.g.position.set(c.x, c.y + desp - (1-q)*c.s*0.9, 0);
-    b.g.scale.setScalar(c.s*b.esc);
-    b.giro.rotation.y = limita(Math.sin(t*0.5 + i*1.7)*0.22);
-    opacidad(b.trajes[0].mats, q); b.sombra.opacity = q;
-    b.g.visible = q > 0.01 && vivaEtapa;
+    b.g.scale.setScalar(c.s);
+    b.giro.rotation.y = limita(Math.sin(t*0.5 + i*1.7)*0.22)*quieta;
+    opacidad(b.trajes[0].mats, a); b.sombra.opacity = a;
+    b.g.visible = a > 0.01 && vivaEtapa;
   });
 
   const ga = 1 - sstep(0.1, 0.4, p);
