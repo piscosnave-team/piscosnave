@@ -42,3 +42,25 @@ await sharp({ create: { width: 180, height: 180, channels: 3, background: '#F7F5
 Checks run on the outputs: dimensions read with `sharp(...).metadata()`; no EXIF, XMP or ICC segment
 reported; a raw byte scan for `Exif`, `XMP`, `tEXt`, `iTXt`, `zTXt`, `eXIf`, `iCCP`, `tIME`, `Photoshop`, `GPS`
 found nothing. The OG image is well under the 200 KB budget.
+
+## E5: extracted page images and hero derivatives
+
+Source: `index.html` at commit `a20e3de` (sha256 prefix `f2bdf5c0442b99c3`), the 12 embedded base64 WebP data
+URIs (hero, three trio bottles, eight 3D textures; 979,980 decoded bytes in total). No new artwork.
+
+Tool: `tools/extract-assets.mjs` (Node + `sharp` 0.35.5). `node tools/extract-assets.mjs` writes the files
+(idempotent); `node tools/extract-assets.mjs --verify` re-decodes the data URIs from the `a20e3de` blob and proves
+every original-bytes file below has the same SHA-256.
+
+| File | Size | Derivation |
+|------|------|------------|
+| `img/hero-1536.webp` | 1536x1024, 366,396 B | Original bytes (lossless WebP with alpha). Not re-encoded. |
+| `img/trio-donaire.webp` | 406x900, 74,506 B | Original bytes. Not re-encoded. |
+| `img/trio-sunqu.webp` | 455x900, 119,076 B | Original bytes. Not re-encoded. |
+| `img/trio-nii.webp` | 413x900, 97,636 B | Original bytes. Not re-encoded. |
+| `img/tex/<key>.webp` (8 files) | 322,366 B in total | Original bytes of the old `texturas` JSON values (`donaire-body`, `donaire-brillo`, `sunqu-body`, `sunqu-brillo`, `sunqu-extra`, `nii-body`, `nii-brillo`, `nii-extra`). Not re-encoded. |
+| `img/hero-960.webp` | 960x640, 102,268 B | `hero-1536.webp` resized to width 960 (sharp default Lanczos3), lossy WebP quality 80, effort 6, alpha kept. |
+| `img/hero-640.webp` | 640x427, 52,982 B | Same, resized to width 640. |
+
+The two derived files are the only re-encoded images. `sharp` writes no EXIF, XMP or ICC unless asked; verified
+with `sharp(...).metadata()` (no `exif`, `icc` or `xmp`) and a chunk scan (only `VP8X`, `ALPH`, `VP8 `).

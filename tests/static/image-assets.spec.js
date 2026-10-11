@@ -89,7 +89,6 @@ test.describe('ST-IMG image markup and files', () => {
   });
 
   test('hero srcset files exist, their pixel widths equal the descriptors and the derived ones are smaller than the original', async () => {
-    expectedRed(test, 'E5', 'assets/img/hero-*.webp do not exist yet');
     const sizes = {};
     for (const w of [640, 960, 1536]) {
       const info = await fileInfo(`assets/img/hero-${w}.webp`);
@@ -128,7 +127,6 @@ test.describe('ST-IMG image markup and files', () => {
   });
 
   test('original-bytes files (hero-1536, trio, 8 textures) equal the a20e3de data URIs, byte for byte', async () => {
-    expectedRed(test, 'E5', 'assets/img/** does not exist yet; the images are still inline base64');
     const wrong = [];
     for (const want of ORIGINALS.files) {
       const info = await fileInfo(want.file);
