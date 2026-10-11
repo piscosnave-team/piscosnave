@@ -1,10 +1,7 @@
 /* ===================== CONFIGURACIÓN =====================
-   WHATSAPP: número con prefijo de país, solo dígitos. Perú: "51987654321" · Europa: "34600123456".
-   Si queda vacío, el botón abre WhatsApp con el mensaje escrito para elegir el contacto. */
-window.NAVE_CONFIG = {
-  /* Un número por región (puede ser el mismo). */
-  WHATSAPP: { pe: '51926941092', eu: '51926941092' }
-};
+   Los valores editables (WHATSAPP y PRECIOS) viven en el bloque JSON #nave-config de index.html. */
+window.NAVE_CONFIG = JSON.parse(document.getElementById('nave-config').textContent);
+const PRECIOS = window.NAVE_CONFIG.PRECIOS;
 
 /* ===================== ARCOS (hornacinas) ===================== */
 window.NAVE_ARCOS = (function(){
@@ -81,10 +78,10 @@ window.NAVE_ARCOS = (function(){
    El HTML está escrito en español. Cada región reemplaza los textos que cambian. */
 window.NAVE_REGION = (function(){
   const PE = {
-    '750 ml · 40 € · Caja incluida':'750 ml · S/ 50 · Caja incluida',
-    '40 €':'S/ 50',
-    'Colección completa · 120 €':'Colección completa · S/ 150',
-    'Pisco puro de quebranta · 750 ml · 40 € · Caja incluida':'Pisco puro de quebranta · 750 ml · S/ 50 · Caja incluida',
+    '750 ml · 40 € · Caja incluida':`750 ml · S/ ${PRECIOS.pe.botella} · Caja incluida`,
+    '40 €':`S/ ${PRECIOS.pe.botella}`,
+    'Colección completa · 120 €':`Colección completa · S/ ${PRECIOS.pe.coleccion}`,
+    'Pisco puro de quebranta · 750 ml · 40 € · Caja incluida':`Pisco puro de quebranta · 750 ml · S/ ${PRECIOS.pe.botella} · Caja incluida`,
     'Titular del sitio: [Nombre o razón social] · NIF: [NIF] · Domicilio: [Dirección] · Contacto: [correo electrónico].':'Titular del sitio: [Nombre o razón social] · RUC: [RUC] · Domicilio: [Dirección] · Contacto: [correo electrónico].',
     'Para recordar que has confirmado tu mayoría de edad, este sitio guarda esa preferencia en el almacenamiento local de tu navegador. No es necesario crear una cuenta ni rellenar un formulario para consultar la colección.':'Para recordar que confirmaste tu mayoría de edad, este sitio guarda esa preferencia en el almacenamiento local de tu navegador. No necesitas crear una cuenta ni llenar un formulario para ver la colección.'
   };
@@ -105,7 +102,7 @@ window.NAVE_REGION = (function(){
     'Pisco puro de quebranta, elaborado artesanalmente en Ica y vestido a mano por Nancy Ventura.':'Pure Quebranta pisco, handcrafted in Ica and dressed by hand by Nancy Ventura.',
     'Elegir mi edición':'Choose my edition',
     'Descubrir la colección':'Discover the collection',
-    '750 ml · 40 € · Caja incluida':'750 ml · €40 · Gift box included',
+    '750 ml · 40 € · Caja incluida':`750 ml · €${PRECIOS.eu.botella} · Gift box included`,
     'Sigue descubriendo':'Keep exploring',
     'Edición I · Costa':'Edition I · Coast',
     'Edición II · Sierra':'Edition II · Highlands',
@@ -122,13 +119,13 @@ window.NAVE_REGION = (function(){
     'gracia y soltura en el movimiento.':'grace and ease in movement.',
     '«corazón» en quechua.':'“heart” in Quechua.',
     '«bosque» en shipibo-konibo.':'“forest” in Shipibo-Konibo.',
-    '40 €':'€40',
+    '40 €':`€${PRECIOS.eu.botella}`,
     '750 ml · caja incluida':'750 ml · gift box included',
     'Pedir Donaire':'Order Donaire','Pedir Sunqu':'Order Sunqu','Pedir Nii':'Order Nii',
     'Tres ediciones. Un mismo pisco.':'Three editions. One pisco.',
     'Donaire, Sunqu y Nii comparten el mismo pisco puro de quebranta de Ica.':'Donaire, Sunqu and Nii share the same pure Quebranta pisco from Ica.',
     'Selecciona una edición':'Select an edition',
-    'Colección completa · 120 €':'Full collection · €120',
+    'Colección completa · 120 €':`Full collection · €${PRECIOS.eu.coleccion}`,
     'Pedir por WhatsApp':'Order on WhatsApp',
     'Selecciona una edición o elige las tres. Cada botella incluye su caja.':'Select an edition or choose all three. Each bottle comes in its own gift box.',
     'Costa':'Coast','Sierra':'Highlands','Selva':'Rainforest',
@@ -156,7 +153,7 @@ window.NAVE_REGION = (function(){
     'Cada botella, una invitación a compartir.':'Each bottle, an invitation to share.',
     'El valor está en el origen del pisco y en las manos que visten cada botella.':'Its value lies in where the pisco comes from and in the hands that dress each bottle.',
     'Hecho en Ica. Vestido a mano.':'Made in Ica. Dressed by hand.',
-    'Pisco puro de quebranta · 750 ml · 40 € · Caja incluida':'Pure Quebranta pisco · 750 ml · €40 · Gift box included',
+    'Pisco puro de quebranta · 750 ml · 40 € · Caja incluida':`Pure Quebranta pisco · 750 ml · €${PRECIOS.eu.botella} · Gift box included`,
     'Pisco Premium · Ica, Perú':'Pisco Premium · Ica, Peru',
     'Escríbenos por WhatsApp':'Message us on WhatsApp',
     'Aviso legal':'Legal notice',
@@ -177,8 +174,8 @@ window.NAVE_REGION = (function(){
       menor:'El acceso está reservado a personas de 18 años o más.',
       pedir:'Pedir por WhatsApp', pedirEd: ed=>`Pedir ${ed} por WhatsApp`, pedirTres:'Pedir las tres por WhatsApp',
       notaBase:'Selecciona una edición o elige las tres. Cada botella incluye su caja.',
-      notaUna:'1 botella de 750 ml con caja · S/ 50. Consulta las opciones de entrega.',
-      notaTres:'3 botellas de 750 ml, cada una con su caja · S/ 150. Consulta las opciones de entrega.',
+      notaUna:`1 botella de 750 ml con caja · S/ ${PRECIOS.pe.botella}. Consulta las opciones de entrega.`,
+      notaTres:`3 botellas de 750 ml, cada una con su caja · S/ ${PRECIOS.pe.coleccion}. Consulta las opciones de entrega.`,
       tres:'las tres ediciones (Donaire, Sunqu y Nii)',
       wa: ed=> ed ? `Hola, me interesa ${ed} de NAVE. ¿Me pueden confirmar la disponibilidad, el precio total y las opciones de entrega?` : 'Hola, me gustaría hacer un pedido de NAVE. ¿Qué ediciones tienen disponibles y cuáles son las opciones de entrega?'
     },
@@ -188,8 +185,8 @@ window.NAVE_REGION = (function(){
       menor:'Access is restricted to people aged 18 or over.',
       pedir:'Order on WhatsApp', pedirEd: ed=>`Order ${ed} on WhatsApp`, pedirTres:'Order all three on WhatsApp',
       notaBase:'Select an edition or choose all three. Each bottle comes in its own gift box.',
-      notaUna:'1 bottle of 750 ml in its gift box · €40. Ask about delivery options.',
-      notaTres:'3 bottles of 750 ml, each in its gift box · €120. Ask about delivery options.',
+      notaUna:`1 bottle of 750 ml in its gift box · €${PRECIOS.eu.botella}. Ask about delivery options.`,
+      notaTres:`3 bottles of 750 ml, each in its gift box · €${PRECIOS.eu.coleccion}. Ask about delivery options.`,
       tres:'all three editions (Donaire, Sunqu and Nii)',
       wa: ed=> ed ? `Hello, I’m interested in ${ed} from NAVE. Could you confirm availability, the total price and delivery options?` : 'Hello, I’d like to place an order with NAVE. Which editions are available and what are the delivery options?'
     }

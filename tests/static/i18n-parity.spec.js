@@ -87,7 +87,6 @@ test.describe('ST-I18N dictionary parity', () => {
   });
 
   test('price-bearing dictionary keys carry only amounts from NAVE_CONFIG.PRECIOS (I-38)', async () => {
-    expectedRed(test, 'E5', 'NAVE_CONFIG.PRECIOS does not exist yet; prices are literals');
     const precios = loadConfig()?.PRECIOS;
     expect(precios, 'NAVE_CONFIG.PRECIOS (the single price source) must exist').toBeTruthy();
     const allowedAmounts = precioValues(precios);

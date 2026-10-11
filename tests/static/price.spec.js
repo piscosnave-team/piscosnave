@@ -14,7 +14,6 @@
  * @see ../e2e/owner-text.spec.js
  */
 import { expect, test } from '@playwright/test';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { visibleTextNodes } from './helpers/html.js';
 import { precioValues, priceTokens } from './helpers/prices.js';
 import { indexPage, loadConfig, loadDictionaries } from './helpers/source.js';
@@ -38,12 +37,10 @@ test.describe('ST-PRICE single price source', () => {
   });
 
   test('NAVE_CONFIG.PRECIOS holds the owner amounts', async () => {
-    expectedRed(test, 'E5', 'NAVE_CONFIG has only WHATSAPP; PRECIOS is introduced by E5');
     expect(loadConfig()?.PRECIOS, 'NAVE_CONFIG.PRECIOS').toEqual(OWNER);
   });
 
   test('every price literal in base HTML, dictionary values and JS strings equals a PRECIOS amount in the right format', async () => {
-    expectedRed(test, 'E5', 'PRECIOS does not exist, so nothing can be checked against it');
     const precios = loadConfig()?.PRECIOS;
     expect(precios, 'NAVE_CONFIG.PRECIOS must exist').toBeTruthy();
     const d = loadDictionaries();
