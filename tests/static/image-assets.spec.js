@@ -20,7 +20,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import sharp from 'sharp';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { elements } from './helpers/html.js';
 import { indexPage, ROOT, sha256Hex } from './helpers/source.js';
 
@@ -74,7 +73,6 @@ test.describe('ST-IMG image markup and files', () => {
   });
 
   test('hero image: intrinsic size, srcset 640w/960w/1536w, sizes, fetchpriority=high, not lazy', async () => {
-    expectedRed(test, 'E5', 'the hero <img> is a base64 data URI with no width/height/srcset/sizes/fetchpriority');
     const hero = heroImg();
     expect(hero, 'img.h-respaldo exists').toBeTruthy();
     expect(hero.attrs.width, 'hero width').toBe('1536');
@@ -103,7 +101,6 @@ test.describe('ST-IMG image markup and files', () => {
   });
 
   test('trio images: files, intrinsic size equal to the file, loading=lazy and decoding=async', async () => {
-    expectedRed(test, 'E5', 'the trio <img> are base64 data URIs with no width/height/loading/decoding');
     const trio = trioImgs();
     expect(trio, 'three trio images').toHaveLength(3);
     expect(trio.map((i) => short(i.attrs.src)), 'trio src').toEqual(['assets/img/trio-donaire.webp', 'assets/img/trio-sunqu.webp', 'assets/img/trio-nii.webp']);
@@ -119,7 +116,6 @@ test.describe('ST-IMG image markup and files', () => {
   });
 
   test('every <img> declares positive integer width and height', async () => {
-    expectedRed(test, 'E5', 'none of the 4 <img> carries width/height today');
     const bad = imgs()
       .filter((i) => !/^[1-9]\d*$/.test(String(i.attrs.width)) || !/^[1-9]\d*$/.test(String(i.attrs.height)))
       .map((i) => `<img class="${i.attrs.class || ''}">`);

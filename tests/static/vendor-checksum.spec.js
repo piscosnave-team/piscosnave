@@ -15,7 +15,6 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { ROOT } from './helpers/source.js';
 import { checkVendor } from './helpers/vendor.js';
 

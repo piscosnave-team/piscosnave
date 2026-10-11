@@ -243,7 +243,6 @@ test.describe('P1 first-view budget (spec 4.6)', () => {
     runIn(test, 'mobile-375');
 
     test('P1 the first view weighs at most 300 KB (gzip -9 text, raw images, without the 3D library, textures and lazy images)', async ({ page }, testInfo) => {
-      expectedRed(test, 'E5', 'index.html embeds ~1 MB of base64 images, so the document alone is far over 307,200 B');
       test.setTimeout(120_000);
       const view = trackFirstView(page);
       await openPage(page, { consent: false }); // fresh context, no stored consent: the age gate is part of the first view

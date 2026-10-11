@@ -14,7 +14,6 @@
  * @see ./helpers/ready.js
  */
 import { existsSync, readFileSync } from 'node:fs';
-import { expectedRed } from './helpers/expected-red.js';
 import { expect, openPage, test } from './helpers/page.js';
 import { runIn } from './helpers/projects.js';
 import { getModo, waitSettled } from './helpers/ready.js';
@@ -64,7 +63,6 @@ test.describe('T-TEX textures load after the WebGL check', () => {
     runIn(test, 'desktop');
 
     test('T-TEX the 8 textures are fetched as files, each only after the first WebGL context exists', async ({ page, errors }) => {
-      expectedRed(test, 'E5', 'textures are base64 data URIs today: the page makes 0 requests to assets/img/tex/');
       const hits = trackTextures(page);
       await page.addInitScript(recordContextTime);
       await openPage(page);
@@ -90,7 +88,6 @@ test.describe('T-TEX textures load after the WebGL check', () => {
     runIn(test, 'desktop');
 
     test('T-TEX with no WebGL the page is static and requests 0 textures', async ({ page }) => {
-      expectedRed(test, 'E5', 'assets/img/tex/*.webp do not exist yet (precondition), so this guard would otherwise pass vacuously');
       expect(missingFiles(), 'precondition: texture files exist, so a request would be possible').toEqual([]);
       const hits = trackTextures(page);
       await page.addInitScript(noWebgl);
@@ -106,7 +103,6 @@ test.describe('T-TEX textures load after the WebGL check', () => {
     runIn(test, 'reduced-motion');
 
     test('T-TEX with prefers-reduced-motion the page is static and requests 0 textures', async ({ page }) => {
-      expectedRed(test, 'E5', 'assets/img/tex/*.webp do not exist yet (precondition), so this guard would otherwise pass vacuously');
       expect(missingFiles(), 'precondition: texture files exist, so a request would be possible').toEqual([]);
       const hits = trackTextures(page);
       await openPage(page);

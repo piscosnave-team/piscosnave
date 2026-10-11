@@ -32,7 +32,6 @@ test.describe('ST-B64 inline image payloads', () => {
   });
 
   test('no raster data URIs in index.html or js/**', async () => {
-    expectedRed(test, 'E5', 'index.html still embeds 4 base64 WebP <img> and 8 WebP textures');
     const found = allText().map((s) => ({ file: s.file, rasterDataUris: count(RASTER, s.text) })).filter((r) => r.rasterDataUris > 0);
     expect(found, 'files containing raster data URIs (move them to assets/img/)').toEqual([]);
   });

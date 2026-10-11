@@ -138,6 +138,7 @@ const rim2 = new THREE.DirectionalLight(0xfff0e6, 1.0); rim2.position.set(5, 1.5
 const brilloLuz = new THREE.PointLight(0xffffff, 6, 8, 2); scene.add(brilloLuz);
 
 const MOD = JSON.parse(document.getElementById('modelos').textContent);
+/* texturas: solo URLs; el navegador las pide en tex() más abajo, cuando el renderer WebGL ya existe */
 const TEX = JSON.parse(document.getElementById('texturas').textContent);
 const loader = new THREE.TextureLoader();
 const tex = (u, srgb=true)=>new Promise((res,rej)=>loader.load(u, t=>{ if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); res(t); }, undefined, rej));
