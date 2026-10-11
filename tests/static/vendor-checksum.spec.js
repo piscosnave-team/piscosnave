@@ -54,7 +54,6 @@ test.describe('ST-VEND vendor checksums', () => {
   });
 
   test('vendor/ in the repository is complete and every checksum matches', async () => {
-    expectedRed(test, 'E5', 'vendor/ and vendor/README.md do not exist until E5 vendors three.module.min.js');
     expect(checkVendor(ROOT), 'vendor violations').toEqual([]);
   });
 });
