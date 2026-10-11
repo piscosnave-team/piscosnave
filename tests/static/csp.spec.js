@@ -1,0 +1,52 @@
+/**
+ * @spec-handoff
+ * @interface ST-CSP (spec 4.7, decision D14 = b3 + r1): meta Content-Security-Policy and referrer meta
+ * @behavior
+ *   - exactly the policy shape: <meta http-equiv=Content-Security-Policy> is the first <head> child after <meta charset>
+ *   - default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ + one 'sha256-...' per
+ *     executable inline script (import map, head boot script); style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+ *     connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'
+ *   - no 'unsafe-inline'/'unsafe-eval' in script-src; script hosts path-pinned to a directory
+ *   - none of frame-ancestors, report-uri, report-to, sandbox (ignored in meta; Chromium logs an error)
+ *   - <meta name="referrer" content="no-referrer"> present
+ * @edge-cases
+ *   - hash set must equal the recomputed SHA-256 (base64) of each executable inline script's exact text; JSON blocks are exempt
+ *   - an owner edit to an inline script without regenerating hashes must turn this red (npm run csp, E10)
+ * @see ./helpers/csp.js
+ */
+import { expect, test } from '@playwright/test';
+import { expectedRed } from '../e2e/helpers/expected-red.js';
+import { checkCsp } from './helpers/csp.js';
+import { inlineScripts, tokenize } from './helpers/html.js';
+import { indexPage, sha256Base64 } from './helpers/source.js';
+
+function page(inlineBody, hash) {
+  const h = hash ?? `sha256-${sha256Base64(Buffer.from(inlineBody, 'utf8'))}`;
+  const csp = `default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ '${h}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><script>${inlineBody}</script></head><body></body></html>`;
+}
+const run = (html) => {
+  const tokens = tokenize(html);
+  return checkCsp(tokens, inlineScripts(tokens));
+};
+
+test.describe('ST-CSP meta policy', () => {
+  test('harness: a conforming page is accepted', async () => {
+    expect(run(page('window.a=1'))).toEqual([]);
+  });
+
+  test('harness: stale hash, unsafe-inline, forbidden directive, wrong position and missing referrer are all flagged', async () => {
+    expect(run(page('window.a=1', 'sha256-AAAA')).join()).toContain('hash set');
+    expect(run(page('x').replace("script-src 'self'", "script-src 'unsafe-inline' 'self'")).join()).toContain("'unsafe-inline'");
+    expect(run(page('x').replace("object-src 'none'", "object-src 'none'; frame-ancestors 'none'")).join()).toContain('frame-ancestors');
+    expect(run(page('x').replace('<meta charset="utf-8">', '<meta charset="utf-8"><meta name="x" content="y">')).join()).toContain('first <head> child');
+    expect(run(page('x').replace('<meta name="referrer" content="no-referrer">', '')).join()).toContain('referrer');
+    expect(run('<html><head><meta charset="utf-8"></head><body></body></html>').join()).toContain('no <meta http-equiv');
+  });
+
+  test('index.html carries the agreed CSP and referrer policy', async () => {
+    expectedRed(test, 'E10', 'index.html has no CSP meta and no referrer meta yet');
+    const { tokens, scripts } = indexPage();
+    expect(checkCsp(tokens, scripts), 'CSP violations').toEqual([]);
+  });
+});
