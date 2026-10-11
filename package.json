@@ -1,0 +1,23 @@
+{
+  "name": "piscosnave",
+  "version": "0.0.0",
+  "private": true,
+  "description": "NAVE Pisco Premium - static single-page site. Dev tooling only (tests); nothing here is shipped to visitors.",
+  "homepage": "https://omnix-afk.github.io/piscosnave/",
+  "type": "module",
+  "engines": {
+    "node": ">=24.8.0"
+  },
+  "scripts": {
+    "validate": "playwright test --project=static",
+    "test": "npm run validate && npm run test:e2e",
+    "test:e2e": "playwright test --project=desktop --project=mobile-375 --project=reduced-motion --project=landscape",
+    "test:visual": "playwright test --project=visual --pass-with-no-tests"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "html-validate": "11.16.2",
+    "sharp": "0.35.5"
+  }
+}
