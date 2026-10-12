@@ -8,6 +8,7 @@
  *   - I-05: while #edad is open header/main/footer are inert and Tab cycles inside it; confirming lands focus on the h1 (tabindex -1), inert gone, stage scrollable
  *   - I-06: each [data-abre] keeps its own aria-expanded in sync (opening one resets the other); with JS off both legal panels can be opened and their text read
  *   - I-09: static path scrolls with behavior 'auto' under reduced motion (and still 'smooth' without it). S8: settled axe (wcag2a/2aa/22aa), serious/critical outside tests/a11y-baseline.json fail
+ *   - L4 (I-07): in the static layout the focus ring of every light-section control is >= 3:1 against its computed background (dark sections must keep >= 3:1); L5 (I-11): each target=_blank link holds one .sr span with the approved cue ((se abre en una ventana nueva) / (opens in a new window)), also after the CTA text rewrite and a region switch
  * @edge-cases
  *   - the 3D tests run in desktop only (software GL); every 3D test uses its own browser, closed in finally with the render loop stopped (S7h hygiene)
  *   - the K2/K1 segment windows follow spec 4.3 (hero P=0, edition k P=k+1.5, trio P=4.75); skip-link target for `Ir al pedido` is any element in #inicio holding #ctaPedido or #trioArcos
@@ -600,4 +601,144 @@ test.describe('S8 settled axe scan (wcag2a, wcag2aa, wcag22aa; serious/critical 
       expect(describeFound(await scanEach(page, project, selector)), `new serious/critical violations in ${label}`).toEqual([]);
     });
   }
+});
+
+/* =============================== L4 focus-ring contrast (I-07) =============================== */
+
+/**
+ * In-page: focuses every visible link/button/summary (keyboard modality, so :focus-visible matches) and returns the contrast of its
+ * focus ring against the colour behind it, computed from the rendered CSS. WCAG 1.4.11 asks 3:1 for a focus indicator.
+ *   ring        computed outline colour (alpha composited over the background)
+ *   background  the layers behind the ring: it sits outside the border box (outline-offset >= 0), so the control's own fill is not
+ *               behind it and the walk starts at the parent; walking up stops at the first opaque colour layer (the canvas is white).
+ *               A gradient layer contributes every colour stop, and the WORST stop counts.
+ * Skipped by design: .salto skip links (they paint their own fill over the header while focused, covered by K4) and the age gate.
+ */
+function focusRingFacts() {
+  const parse = (s) => {
+    let m = /^rgba?\(([^)]+)\)$/.exec(s.trim());
+    if (m) { const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p[3] === undefined ? 1 : p[3] }; }
+    m = /^color\(srgb\s+([^)]+)\)$/.exec(s.trim());
+    if (m) { const p = m[1].split(/[\s/]+/).filter(Boolean).map(Number); return { r: p[0] * 255, g: p[1] * 255, b: p[2] * 255, a: p[3] === undefined ? 1 : p[3] }; }
+    return null;
+  };
+  const over = (f, b) => { const a = f.a + b.a * (1 - f.a); return a === 0 ? { r: 0, g: 0, b: 0, a: 0 } : { r: (f.r * f.a + b.r * b.a * (1 - f.a)) / a, g: (f.g * f.a + b.g * b.a * (1 - f.a)) / a, b: (f.b * f.a + b.b * b.a * (1 - f.a)) / a, a }; };
+  const lum = (c) => { const f = (v) => { const x = v / 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+  const ratio = (x, y) => { const [hi, lo] = [lum(x), lum(y)].sort((p, q) => q - p); return (hi + 0.05) / (lo + 0.05); };
+  /** Candidate opaque colours behind `start`'s own box (top layer first while walking, composited bottom-up). */
+  const behind = (start) => {
+    const layers = [];
+    for (let n = start; n && n.nodeType === 1; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      if (/gradient/.test(cs.backgroundImage)) layers.push({ stops: [...cs.backgroundImage.matchAll(/rgba?\([^)]*\)/g)].map((x) => parse(x[0])).filter(Boolean) });
+      const c = parse(cs.backgroundColor);
+      if (c && c.a > 0) { layers.push({ color: c }); if (c.a === 1) break; }
+    }
+    let cands = [{ r: 255, g: 255, b: 255, a: 1 }];
+    for (const layer of layers.reverse()) cands = layer.color ? cands.map((c) => over(layer.color, c)) : layer.stops.flatMap((s) => cands.map((c) => over(s, c)));
+    return cands;
+  };
+  const out = [];
+  for (const el of document.querySelectorAll('a[href], button, summary')) {
+    if (el.classList.contains('salto') || el.closest('.edad')) continue;
+    const box = el.getBoundingClientRect();
+    if (!(box.width > 2 && box.height > 2) || getComputedStyle(el).visibility !== 'visible' || el.disabled) continue;
+    el.focus({ preventScroll: true });
+    const cs = getComputedStyle(el);
+    const label = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}${el.dataset.ed ? `[${el.dataset.ed}]` : ''} "${(el.getAttribute('aria-label') || el.textContent).replace(/\s+/g, ' ').trim().slice(0, 24)}"`;
+    const problems = [];
+    if (document.activeElement !== el) problems.push('could not take focus');
+    if (!el.matches(':focus-visible')) problems.push(':focus-visible does not match after a keyboard press');
+    if (cs.outlineStyle === 'none' || parseFloat(cs.outlineWidth) < 1) problems.push(`no focus outline (${cs.outlineStyle} ${cs.outlineWidth})`);
+    const ring = parse(cs.outlineColor);
+    if (!ring) problems.push(`unparseable outline colour ${cs.outlineColor}`);
+    const bgs = behind(parseFloat(cs.outlineOffset) >= 0 ? el.parentElement : el);
+    const shown = ring ? bgs.map((b) => ratio(over(ring, b), b)) : [0];
+    const worst = Math.min(...shown);
+    const worstBg = bgs[shown.indexOf(worst)];
+    out.push({ label, problems, ratio: worst, tone: lum(bgs[0]) > 0.18 ? 'light' : 'dark', ring: cs.outlineColor, bg: `rgb(${Math.round(worstBg.r)}, ${Math.round(worstBg.g)}, ${Math.round(worstBg.b)})` });
+  }
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  return out;
+}
+
+test.describe('L4 focus-ring contrast is at least 3:1 against the section behind it (I-07)', () => {
+  // the static layout shows every section at once with plain CSS backgrounds (light editions/trio, dark header/hero/footer); the 3D stage reuses the same rules
+  runIn(test, 'reduced-motion');
+
+  const sample = async (page) => {
+    await openPage(page);
+    await waitSettled(page);
+    expect(await getModo(page), 'the static layout shows every section').toBe('estatica');
+    await page.keyboard.press('Tab'); // keyboard modality: programmatic focus() then matches :focus-visible
+    return page.evaluate(focusRingFacts);
+  };
+  const describeBad = (list) => list.filter((s) => s.problems.length || s.ratio < 3).map((s) => `${s.label}: ${s.problems.length ? s.problems.join('; ') : `ring ${s.ring} on ${s.bg} = ${s.ratio.toFixed(2)}:1`}`);
+
+  test('L4 on light sections (edition links, edition slots, #lasTres, #ctaPedido) the focus ring is at least 3:1', async ({ page }) => {
+    expectedRed(test, 'E9', 'the global :focus-visible ring is rosa (#D7A0A6), about 2.0:1 on the light sections (blanco), under the 3:1 WCAG 1.4.11 minimum (I-07)');
+    const facts = await sample(page);
+    const light = facts.filter((s) => s.tone === 'light');
+    expect(light.length, `light-section controls sampled: ${light.map((s) => s.label).join(', ')} (3 edition links, 3 slots, #lasTres, #ctaPedido)`).toBeGreaterThanOrEqual(8);
+    expect(describeBad(light), 'light-section controls whose focus ring is under 3:1').toEqual([]);
+  });
+
+  test('L4 on dark sections (header, hero, footer) the focus ring stays at least 3:1 (guard: the light-section fix must not break dark ones)', async ({ page }) => {
+    const facts = await sample(page);
+    const dark = facts.filter((s) => s.tone === 'dark');
+    expect(dark.length, `dark-section controls sampled: ${dark.map((s) => s.label).join(', ')}`).toBeGreaterThanOrEqual(10);
+    expect(describeBad(dark), 'dark-section controls whose focus ring is under 3:1').toEqual([]);
+  });
+});
+
+/* =============================== L5 new-window cue (I-11) =============================== */
+
+const CUE = { pe: '(se abre en una ventana nueva)', eu: '(opens in a new window)' };
+
+/** In-page: every target=_blank link with the text of its .sr children (the cue lives in an .sr span, visually hidden, read by screen readers). */
+const blankLinks = () => [...document.querySelectorAll('a[target="_blank"]')].map((a) => ({
+  label: `${a.dataset.wa !== undefined ? `[data-wa="${a.dataset.wa}"]` : a.className || a.tagName.toLowerCase()}${a.id ? `#${a.id}` : ''}`,
+  sr: [...a.querySelectorAll('.sr')].map((s) => s.textContent.trim()),
+  noopener: /\bnoopener\b/.test(a.rel) && /\bnoreferrer\b/.test(a.rel),
+}));
+
+test.describe('L5 every target=_blank link announces that it opens in a new window (I-11)', () => {
+  runIn(test, 'reduced-motion');
+
+  /** Problems of the links against the cue of `region` (empty = every link carries exactly one .sr cue with the approved text). */
+  const cueProblems = async (page, region) => {
+    const links = await page.evaluate(blankLinks);
+    expect(links.length, 'target=_blank links on the page (3 edition links, #ctaPedido, footer WhatsApp)').toBeGreaterThanOrEqual(5);
+    const problems = links.filter((l) => !(l.sr.length === 1 && l.sr[0] === CUE[region])).map((l) => `${l.label}: .sr text ${JSON.stringify(l.sr)}, expected [${JSON.stringify(CUE[region])}]`);
+    // the cue is in the accessibility tree, not only in the DOM: a link named by its visible text also exposes the cue
+    const named = await page.getByRole('link', { name: CUE[region] }).count();
+    if (named !== links.length) problems.push(`accessibility tree: ${named} links expose the cue in their name, expected ${links.length}`);
+    return problems;
+  };
+
+  test('L5 ?region=pe: each target=_blank link contains an .sr span reading "(se abre en una ventana nueva)"', async ({ page }) => {
+    expectedRed(test, 'E9', 'no target=_blank link has an .sr new-window cue yet (0 of 5): screen-reader users are not told that the link opens a new tab (I-11)');
+    await openPage(page, { region: 'pe' });
+    expect(await cueProblems(page, 'pe'), 'links without the approved cue').toEqual([]);
+  });
+
+  test('L5 ?region=eu: the cue is translated through the dictionary to "(opens in a new window)"', async ({ page }) => {
+    expectedRed(test, 'E9', 'no target=_blank link has an .sr new-window cue yet, so there is nothing to translate (I-11)');
+    await openPage(page, { region: 'eu' });
+    expect(await cueProblems(page, 'eu'), 'links without the approved cue').toEqual([]);
+  });
+
+  test('L5 the cue survives the order-CTA text rewrite and a region switch both ways', async ({ page }) => {
+    expectedRed(test, 'E9', 'no target=_blank link has an .sr new-window cue yet (I-11)');
+    await openPage(page, { region: 'pe' });
+    await page.locator('#trioArcos .slot[data-ed="Sunqu"]').click();
+    await expect(page.locator('#ctaTexto')).toHaveText('Pedir Sunqu por WhatsApp'); // visible label is unchanged: the cue is an extra .sr child, not part of #ctaTexto
+    expect(await cueProblems(page, 'pe'), 'after picking an edition (pe)').toEqual([]);
+    await page.locator('.cabecera [data-region="eu"]').click();
+    await expect(page.locator('#ctaTexto')).toHaveText('Order Sunqu on WhatsApp');
+    expect(await cueProblems(page, 'eu'), 'after switching to eu').toEqual([]);
+    await page.locator('.cabecera [data-region="pe"]').click();
+    await expect(page.locator('#ctaTexto')).toHaveText('Pedir Sunqu por WhatsApp');
+    expect(await cueProblems(page, 'pe'), 'after switching back to pe').toEqual([]);
+  });
 });
