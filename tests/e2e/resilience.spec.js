@@ -420,24 +420,47 @@ test.describe('S7h / I-39 readiness', () => {
     await expect(root).toHaveAttribute('data-motivo', 'desplazado');
   });
 
-  test('S7h the first viewport (.presencia) looks the same before and after the 3D upgrade (canvas area masked)', async ({ page }, testInfo) => {
+  // Runs in its OWN browser, closed in `finally`. Screenshotting the live 3D page under SwiftShader (with #escena hidden for the
+  // masked compare) takes seconds while the render loop keeps queueing GL work, and the worker's shared GPU process keeps draining
+  // that backlog (about 8 busy SwiftShader threads) after the page is gone: the next 3D test in the same worker then stalls in
+  // browser.newContext or waitSettled (S1 right after this test: 3 of 3 runs). Killing this browser kills its GPU process with it.
+  test('S7h the first viewport (.presencia) looks the same before and after the 3D upgrade (canvas area masked)', async ({ playwright }, testInfo) => {
     test.setTimeout(120_000);
-    let release;
-    const gate = new Promise((resolve) => { release = resolve; });
-    await page.route(THREE, async (route) => { await gate; await route.continue(); });
-    await page.addInitScript(() => { try { localStorage.setItem('nave-edad', 'si'); } catch (e) { /* blocked */ } });
-    await page.goto('/?region=pe', { waitUntil: 'commit' });
-    await page.waitForFunction(() => !!window.NAVE_REGION && !!document.getElementById('hCaja'));
-    await page.addStyleTag({ content: '#escena{visibility:hidden!important}' });
-    const shot = () => page.screenshot({ mask: [page.locator('#hCaja')], maskColor: '#ff00ff', animations: 'disabled', caret: 'hide' });
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-    const before = await shot(); // the module is held: this is the pre-upgrade (static default) first viewport
-    release();
-    await waitSettled(page);
-    const after = await shot();
-    await testInfo.attach('presencia-before-upgrade', { body: before, contentType: 'image/png' });
-    await testInfo.attach('presencia-after-upgrade', { body: after, contentType: 'image/png' });
-    const ratio = await diffRatio(before, after);
-    expect(ratio, 'share of differing pixels in the first viewport, before vs after the 3D upgrade (h1 tolerance 0.002)').toBeLessThanOrEqual(0.002);
+    const use = testInfo.project.use;
+    const browser = await playwright.chromium.launch({ args: use.launchOptions?.args });
+    try {
+      const context = await browser.newContext({
+        baseURL: use.baseURL, timezoneId: use.timezoneId, locale: use.locale, colorScheme: use.colorScheme,
+        serviceWorkers: use.serviceWorkers, viewport: use.viewport,
+      });
+      const page = await context.newPage();
+      let release;
+      const gate = new Promise((resolve) => { release = resolve; });
+      try {
+        await page.route(THREE, async (route) => { await gate; await route.continue(); });
+        await page.addInitScript(() => { try { localStorage.setItem('nave-edad', 'si'); } catch (e) { /* blocked */ } });
+        await page.goto('/?region=pe', { waitUntil: 'commit' });
+        await page.waitForFunction(() => !!window.NAVE_REGION && !!document.getElementById('hCaja'));
+        await page.addStyleTag({ content: '#escena{visibility:hidden!important}' });
+        const shot = () => page.screenshot({ mask: [page.locator('#hCaja')], maskColor: '#ff00ff', animations: 'disabled', caret: 'hide' });
+        await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+        const before = await shot(); // the module is held: this is the pre-upgrade (static default) first viewport
+        release();
+        await waitSettled(page);
+        // Settled state reached: stop the page's render loop so the capture (and the browser shutdown below) do not compete with it.
+        // Measured here: closing the browser took ~30 s (Playwright's force-kill) with the loop running, ~1 s with it stopped.
+        await page.evaluate(() => { window.requestAnimationFrame = () => 0; });
+        const after = await shot();
+        await testInfo.attach('presencia-before-upgrade', { body: before, contentType: 'image/png' });
+        await testInfo.attach('presencia-after-upgrade', { body: after, contentType: 'image/png' });
+        const ratio = await diffRatio(before, after);
+        expect(ratio, 'share of differing pixels in the first viewport, before vs after the 3D upgrade (h1 tolerance 0.002)').toBeLessThanOrEqual(0.002);
+      } finally {
+        release(); // never leave a held route behind, whatever happened above
+        await context.close();
+      }
+    } finally {
+      await browser.close();
+    }
   });
 });
