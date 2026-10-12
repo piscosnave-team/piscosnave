@@ -197,7 +197,6 @@ test.describe('K1 stage controls stay reachable at every scroll position (U-05)'
     const at = `P = ${positions.join(', ')}`;
 
     test(`K1 every a/button in .etapa is visible (not visibility:hidden, not display:none) and in the accessibility tree at ${at}`, async ({ page }) => {
-      expectedRed(test, 'E8', 'the editions, the slots and the order widget are visibility:hidden off-segment (CSS defaults and per-frame writes), so they are skipped by Tab and absent from the accessibility tree (U-05)');
       const pin = await open3d(page);
       const problems = [];
       for (const p of positions) {
@@ -220,7 +219,6 @@ test.describe('K1 stage controls stay reachable at every scroll position (U-05)'
     });
 
     test(`K1 off-segment controls have pointer-events:none and the active segment is hit-testable at ${at}`, async ({ page }) => {
-      expectedRed(test, 'E8', 'off-segment controls keep pointer-events:auto (they only escape hit-testing today because visibility:hidden hides them); once they are exposed (K1 above) they would cover the active segment');
       const pin = await open3d(page);
       const problems = [];
       for (const p of positions) {
@@ -249,7 +247,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   runIn(test, 'desktop');
 
   test('K2 Tab from the top reaches the hero CTAs, the three order links, the three slots, #lasTres and #ctaPedido in order, each on screen right after the focus', async ({ page }) => {
-    expectedRed(test, 'E8', 'the edition links, slots, #lasTres and #ctaPedido are visibility:hidden, so Tab skips them (U-05)');
     const pin = await open3d(page);
     const trail = [];
     const first = new Map();
@@ -281,7 +278,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   });
 
   test('K2 focusing a control with focus() scrolls its segment into view, in any direction', async ({ page }) => {
-    expectedRed(test, 'E8', 'the controls are visibility:hidden, so focus() does nothing (not focusable) and no focusin scroll happens (U-05)');
     await open3d(page);
     const problems = [];
     for (const key of ['ed2-pedir', 'hero-descubrir', 'slot-sunqu', 'ed0-pedir', 'ctaPedido']) {
@@ -294,7 +290,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   });
 
   test('K3 Enter on the Sunqu slot picks it, Enter on #ctaPedido opens the wa.me chat with the edition (keyboard order path)', async ({ page }) => {
-    expectedRed(test, 'E8', 'the Sunqu slot and #ctaPedido cannot be reached by Tab (visibility:hidden), so the keyboard order path is impossible (U-05)');
     await open3d(page);
     const toSlot = await tabTo(page, '.slot[data-ed="Sunqu"]');
     expect(toSlot.found, `the Sunqu slot is reached by Tab. Trail: ${toSlot.trail.join(' > ')}`).toBe(true);

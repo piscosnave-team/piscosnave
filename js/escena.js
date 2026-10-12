@@ -63,6 +63,26 @@ window.NAVE_IR.alPin = v=>{
   scrollTo({top: destino, behavior: Math.abs(scrollY - destino) > innerHeight*3 ? 'auto' : 'smooth'});
 };
 
+/* Los controles de la etapa nunca se ocultan con visibility (siguen en el orden de Tab y en el árbol de accesibilidad); fuera de su
+   segmento solo pierden el puntero. Al enfocar uno con el teclado, la página salta al segmento donde se ve: hero P=0, edición k
+   P=k+1.5, las tres juntas P=4.75. Un enfoque nacido de un puntero no salta: moverse entre pulsar y soltar perdería el clic. */
+function segmentoDe(el){
+  const art = el.closest('.ed-texto');
+  if (el.closest('.h-texto')) return 0;
+  if (art) return [...document.querySelectorAll('.ed-texto')].indexOf(art) + 1.5;
+  return el.closest('#trioArcos, #trioPie') ? 4.75 : null;
+}
+function irAlSegmento(el){
+  if (!st) return;
+  const v = segmentoDe(el);
+  if (v !== null) scrollTo({top: st.start + (st.end - st.start)*(v/FIN), behavior: 'instant'});
+}
+let puntero = false, sueltaPuntero = 0;
+addEventListener('pointerdown', ()=>{ puntero = true; clearTimeout(sueltaPuntero); }, true);
+const alSoltar = ()=>{ sueltaPuntero = setTimeout(()=>{ puntero = false; }, 500); };
+addEventListener('pointerup', alSoltar, true); addEventListener('pointercancel', alSoltar, true);
+etapa.addEventListener('focusin', ev=>{ if (!puntero) irAlSegmento(ev.target); });
+
 ARC.montar(document.getElementById('hArco'), 'presencia');
 const nichos = [...document.querySelectorAll('.nicho')];
 const arcos = nichos.map(n=>ARC.montar(n, n.dataset.arco));
@@ -91,7 +111,7 @@ function pintaDom(p){
   const W = innerWidth, H = innerHeight, e = p - 1;
   /* presencia */
   const ht = 1 - sstep(0.04, 0.3, p);
-  hTexto.style.opacity = ht; hTexto.style.visibility = ht < 0.01 ? 'hidden' : 'visible';
+  hTexto.style.opacity = ht; hTexto.style.pointerEvents = ht > 0.5 ? 'auto' : 'none';
   hTexto.style.transform = `translate3d(0,${(1-ht)*-30}px,0)`;
   desliza.style.opacity = 1 - sstep(0, 0.1, p);
   hArcoEl.style.opacity = 1 - sstep(0.15, 0.4, p);
@@ -114,12 +134,12 @@ function pintaDom(p){
     const t = textos[k];
     cascada(t.hijos, e, k===0 ? -0.1 : k-0.02, 0.045, k+0.62);
     const vis = sstep(k-0.1, k+0.1, e)*(1 - salida);
-    t.el.style.visibility = vis < 0.01 ? 'hidden' : 'visible';
+    t.el.style.pointerEvents = vis > 0.5 ? 'auto' : 'none';
     nombresF[k].style.opacity = vis*0.9;
     nombresF[k].style.transform = `translate3d(${-8 - (e-k)*22}vw,0,0)`;
   }
   /* las tres: el arco de Nii viaja a su lugar y llegan las otras dos con el mismo telón */
-  trioArcos.style.visibility = e > 2.9 ? 'visible' : 'hidden';
+  trioArcos.style.pointerEvents = e > 3.3 ? 'auto' : 'none';
   const viaje = sstep(3.0, 3.5, e);
   const rTrio = trioArcosEl.map(el=>el.getBoundingClientRect());
   if (viaje > 0){
@@ -135,7 +155,7 @@ function pintaDom(p){
   /* ya colocadas, las botellas del trío pasan a imagen para que el enfoque y desenfoque las afecte */
   const fijo = sstep(3.56, 3.7, e);
   trioArcosEl.forEach(el=>{ el.querySelector('.respaldo').style.opacity = fijo; });
-  trioCab.style.visibility = trioPie.style.visibility = e > 3.1 ? 'visible' : 'hidden';
+  trioCab.style.pointerEvents = trioPie.style.pointerEvents = e > 3.3 ? 'auto' : 'none';
 
   const activo = Math.max(0, Math.min(2, Math.floor(e + 0.1)));
   marcas.forEach((m,i)=>m.classList.toggle('activo', i===activo));

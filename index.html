@@ -145,7 +145,7 @@ button{font:inherit;color:inherit}
 .con-3d .respaldo{visibility:hidden}
 .zona-arrastre{position:absolute;z-index:5;cursor:grab;touch-action:pan-y;display:none}
 .zona-arrastre:active{cursor:grabbing}
-.ed-texto{position:absolute;z-index:4;left:58%;right:var(--gutter);top:50%;transform:translateY(-46%);max-width:500px;visibility:hidden;color:var(--granate)}
+.ed-texto{position:absolute;z-index:4;left:58%;right:var(--gutter);top:50%;transform:translateY(-46%);max-width:500px;pointer-events:none;color:var(--granate)}
 .ed-texto > *{opacity:0}
 .ed-texto .rotulo{color:var(--tinta-2)}
 .ed-texto h2{font-size:clamp(3.6rem,7.4vw,7rem);letter-spacing:-0.045em;line-height:.9;margin:.18em 0 .16em}
@@ -165,11 +165,11 @@ button{font:inherit;color:inherit}
 .con-3d .arrastra{display:flex}
 
 /* las tres juntas */
-.trio-cabeza{position:absolute;z-index:4;left:var(--gutter);right:var(--gutter);top:calc(var(--barra) + 4vh);top:calc(var(--barra) + 4svh);text-align:center;visibility:hidden}
+.trio-cabeza{position:absolute;z-index:4;left:var(--gutter);right:var(--gutter);top:calc(var(--barra) + 4vh);top:calc(var(--barra) + 4svh);text-align:center;pointer-events:none}
 .trio-cabeza > *{opacity:0}
 .trio-cabeza h2{font-size:clamp(2.2rem,4.4vw,3.8rem);letter-spacing:-0.04em}
 .trio-cabeza p{margin-top:.6rem;color:var(--tinta-2)}
-.trio-arcos{--th:min(46svh,440px);position:absolute;z-index:1;left:50%;transform:translateX(-50%);top:calc(var(--barra) + 4vh + clamp(110px,15vh,150px));top:calc(var(--barra) + 4svh + clamp(110px,15svh,150px));display:flex;gap:clamp(30px,4vw,64px);visibility:hidden}
+.trio-arcos{--th:min(46svh,440px);position:absolute;z-index:1;left:50%;transform:translateX(-50%);top:calc(var(--barra) + 4vh + clamp(110px,15vh,150px));top:calc(var(--barra) + 4svh + clamp(110px,15svh,150px));display:flex;gap:clamp(30px,4vw,64px);pointer-events:none}
 .slot{position:relative;display:grid;justify-items:center;gap:14px;padding:0;border:0;background:none;cursor:pointer;width:calc(var(--th)*.64);transition:filter 500ms var(--ease-out),opacity 500ms var(--ease-out),transform 500ms var(--ease-out)}
 /* enfoque: la elegida se acerca, las demás se desenfocan */
 .trio-arcos.con-eleccion .slot{filter:blur(4px) saturate(.55);opacity:.42;transform:scale(.93)}
@@ -184,7 +184,7 @@ button{font:inherit;color:inherit}
 .slot .etiqueta{display:flex;align-items:baseline;gap:10px;opacity:0}
 .slot .etiqueta b{font-size:1.25rem;letter-spacing:-0.02em}
 .slot .etiqueta span{color:var(--tinta-2);font-size:.9375rem;font-variant-numeric:tabular-nums}
-.trio-pie{position:absolute;z-index:4;left:var(--gutter);right:var(--gutter);bottom:clamp(18px,4vh,40px);bottom:clamp(18px,4svh,40px);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 22px;visibility:hidden}
+.trio-pie{position:absolute;z-index:4;left:var(--gutter);right:var(--gutter);bottom:clamp(18px,4vh,40px);bottom:clamp(18px,4svh,40px);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 22px;pointer-events:none}
 .trio-pie > *{opacity:0}
 .trio-pie .las-tres{border:1px solid var(--rosa);border-radius:999px;background:transparent;min-height:44px;padding:0 1.1em;font-weight:700;font-size:.875rem;cursor:pointer;transition:background-color 200ms var(--ease-out),border-color 200ms var(--ease-out)}
 .trio-pie .las-tres[aria-pressed="true"]{background:var(--rosa-claro);border-color:var(--granate)}
@@ -222,7 +222,7 @@ button{font:inherit;color:inherit}
 /* Sin 3D o con movimiento reducido: todo se lee en orden, sin fijar */
 .etapa.estatica{height:auto;padding-top:100vh;padding-top:100svh;background:var(--granate);overflow:visible}
 .etapa.estatica .luz,.etapa.estatica .nombres,.etapa.estatica .nichos,.etapa.estatica .pasos,.etapa.estatica .arrastra,.etapa.estatica .zona-arrastre,.etapa.estatica .desliza{display:none}
-.etapa.estatica .ed-texto,.etapa.estatica .trio-cabeza,.etapa.estatica .trio-arcos,.etapa.estatica .trio-pie{position:relative;inset:auto;transform:none;visibility:visible;margin:0;padding:56px var(--gutter);max-width:none;background:var(--blanco)}
+.etapa.estatica .ed-texto,.etapa.estatica .trio-cabeza,.etapa.estatica .trio-arcos,.etapa.estatica .trio-pie{position:relative;inset:auto;transform:none;pointer-events:auto;margin:0;padding:56px var(--gutter);max-width:none;background:var(--blanco)}
 .etapa.estatica .trio-arcos{justify-content:center;padding-block:24px}
 .etapa.estatica .ed-texto > *,.etapa.estatica .trio-cabeza > *,.etapa.estatica .trio-pie > *,.etapa.estatica .trio-arco,.etapa.estatica .etiqueta{opacity:1}
 #t-donaire,#trioArcos{scroll-margin-top:calc(var(--barra) + 12px)} /* destinos de [data-ir] en la versión estática: la barra fija no los tapa */
