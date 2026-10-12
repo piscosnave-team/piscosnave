@@ -116,10 +116,9 @@ button{font:inherit;color:inherit}
 
 /* ================= ETAPA: presencia, ediciones y las tres juntas (fijada) ================= */
 .etapa{--fondo:radial-gradient(70% 80% at 70% 58%,#6c2b3f 0%,var(--granate) 46%,var(--granate-hondo) 100%);position:relative;height:100vh;height:100svh;overflow:hidden;background:var(--fondo)}
-/* .presencia lleva el mismo fondo que la etapa fijada: el primer pintado (versión estática por defecto) y la 3D ya mejorada se ven igual.
-   Una vez decidido que la página queda estática, el fondo vuelve a ser el plano de siempre. */
+/* .presencia lleva el mismo fondo que la etapa fijada: el primer pintado (versión estática por defecto) y la 3D ya mejorada se ven igual,
+   y la versión estática conserva el degradado radial en su primera pantalla. */
 .presencia{position:absolute;left:0;right:0;top:0;height:100vh;height:100svh;background:var(--fondo)}
-html[data-modo="estatica"] .presencia{background:none}
 .h-caja{position:absolute;left:44%;right:3%;top:calc(var(--barra) + 7vh);top:calc(var(--barra) + 7svh);bottom:9vh;bottom:9svh}
 .h-arco{position:absolute;inset:0;margin:auto;width:min(100%,62vh);width:min(100%,62svh);height:100%;pointer-events:none}
 .h-arco svg{width:100%;height:100%;display:block;overflow:visible}
