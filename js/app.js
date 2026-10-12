@@ -223,13 +223,28 @@ window.NAVE_WA = function(a, ed){
   const R = window.NAVE_REGION;
   const num = String((window.NAVE_CONFIG.WHATSAPP||{})[R.actual]||'').replace(/\D/g,'');
   const msg = R.t('wa')(ed);
-  a.href = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`; a.target = '_blank'; a.rel = 'noopener';
+  a.href = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`; a.target = '_blank'; a.rel = 'noopener noreferrer';
 };
 window.NAVE_ELECCION = -1;
+
+/* ===================== Enlaces [data-ir] =====================
+   Cada enlace trae un href real (sin JS salta al ancla). Un solo oyente delegado, instalado una vez aquí, decide al hacer
+   clic: en 3D llama a la función que registra el módulo (NAVE_IR.alPin); en la versión estática se desplaza al destino del href. */
+window.NAVE_IR = { alPin: null };
+document.addEventListener('click', ev=>{
+  const a = ev.target.closest && ev.target.closest('[data-ir]');
+  if (!a || ev.defaultPrevented || ev.button || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+  ev.preventDefault();
+  if (document.documentElement.classList.contains('con-3d') && NAVE_IR.alPin){ NAVE_IR.alPin(+a.dataset.ir); return; }
+  const destino = document.getElementById((a.getAttribute('href') || '').slice(1));
+  if (destino) destino.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+});
 (function(){
   document.querySelectorAll('[data-wa]').forEach(a=>NAVE_WA(a, a.dataset.wa));
   document.getElementById('anio').textContent = new Date().getFullYear();
   document.querySelectorAll('[data-arco-mini]').forEach(el=>{ const s = NAVE_ARCOS.montar(el, el.dataset.arcoMini); NAVE_ARCOS.mover(s, el.dataset.arcoMini, 1); });
+  /* las hornacinas del trío se montan aquí y no en el módulo 3D: la versión estática las necesita aunque three.js falle */
+  document.querySelectorAll('.trio-arco').forEach(el=>{ const s = NAVE_ARCOS.montar(el, el.dataset.arco); NAVE_ARCOS.mover(s, el.dataset.arco, 1); });
 
   /* elección de edición: un solo botón de pedido que cambia según la botella elegida */
   const slots = [...document.querySelectorAll('.slot')], tres = document.getElementById('lasTres');

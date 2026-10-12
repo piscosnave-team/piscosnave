@@ -189,6 +189,7 @@ button{font:inherit;color:inherit}
 .etapa.estatica .ed-texto,.etapa.estatica .trio-cabeza,.etapa.estatica .trio-arcos,.etapa.estatica .trio-pie{position:relative;inset:auto;translate:none;visibility:visible;margin:0;padding:56px var(--gutter);max-width:none;background:var(--blanco)}
 .etapa.estatica .trio-arcos{justify-content:center;padding-block:24px}
 .etapa.estatica .ed-texto > *,.etapa.estatica .trio-cabeza > *,.etapa.estatica .trio-pie > *,.etapa.estatica .trio-arco,.etapa.estatica .etiqueta{opacity:1}
+#t-donaire,#trioArcos{scroll-margin-top:calc(var(--barra) + 12px)} /* destinos de [data-ir] en la versión estática: la barra fija no los tapa */
 @media (prefers-reduced-motion:reduce){.desliza i{animation:none}}
 
 /* ================= MARCA ================= */
@@ -259,16 +260,16 @@ button{font:inherit;color:inherit}
   <div class="wrap">
     <a href="#inicio" data-ir="0" aria-label="NAVE, inicio"><svg class="logo iso" viewBox="113 172 151.46 251" aria-hidden="true"><use href="#iso-nv"/></svg></a>
     <nav aria-label="Principal">
-      <a class="sec" href="#inicio" data-ir="1">Colección</a>
+      <a class="sec" href="#t-donaire" data-ir="1">Colección</a>
       <a class="sec" href="#marca">Nuestra historia</a>
       <div class="region" role="group" aria-label="Región y moneda"><button type="button" data-region="pe" aria-pressed="false">PE · S/</button><button type="button" data-region="eu" aria-pressed="false">EU · €</button></div>
-      <a class="boton blanco" href="#inicio" data-ir="4.75"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-chat"/></svg>Pedidos</a>
+      <a class="boton blanco" href="#trioArcos" data-ir="4.75"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-chat"/></svg>Pedidos</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <section class="etapa" id="inicio" aria-label="NAVE Pisco Premium">
+  <section class="etapa estatica" id="inicio" aria-label="NAVE Pisco Premium">
     <div class="presencia">
       <div class="h-caja" id="hCaja">
         <div class="h-arco" id="hArco" aria-hidden="true"></div>
@@ -283,8 +284,8 @@ button{font:inherit;color:inherit}
           <h1>El alma del Perú en cada gota</h1>
           <p class="lead">Pisco puro de quebranta, elaborado artesanalmente en Ica y vestido a mano por Nancy Ventura.</p>
           <div class="acciones">
-            <a class="boton blanco" href="#inicio" data-ir="4.75">Elegir mi edición</a>
-            <a class="enlace" href="#inicio" data-ir="1">Descubrir la colección <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a>
+            <a class="boton blanco" href="#trioArcos" data-ir="4.75">Elegir mi edición</a>
+            <a class="enlace" href="#t-donaire" data-ir="1">Descubrir la colección <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a>
           </div>
           <p class="dato">750 ml · 40 € · Caja incluida</p>
         </div>
@@ -312,7 +313,7 @@ button{font:inherit;color:inherit}
       <p class="cuerpo">El porte del chalán y la gracia de la marinera inspiran Donaire: un homenaje a la costa en blanco y rojo.</p>
       <ul class="rasgos"><li>Elegante</li><li>Luminosa</li><li>Cercana</li></ul>
       <p class="significado"><b>Donaire:</b> gracia y soltura en el movimiento.</p>
-      <div class="compra"><p class="precio">40 €<small>750 ml · caja incluida</small></p><a class="enlace" data-wa="Donaire" href="#inicio">Pedir Donaire <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a></div>
+      <div class="compra"><p class="precio">40 €<small>750 ml · caja incluida</small></p><a class="enlace" data-wa="Donaire" href="https://wa.me/51926941092?text=Hola%2C%20me%20interesa%20Donaire%20de%20NAVE.%20%C2%BFMe%20pueden%20confirmar%20la%20disponibilidad%2C%20el%20precio%20total%20y%20las%20opciones%20de%20entrega%3F" target="_blank" rel="noopener noreferrer">Pedir Donaire <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a></div>
     </article>
     <article class="ed-texto" aria-labelledby="t-sunqu">
       <p class="rotulo">Edición II · Sierra</p>
@@ -321,7 +322,7 @@ button{font:inherit;color:inherit}
       <p class="cuerpo">Nancy da forma al poncho y al chullo de Sunqu, una edición que celebra el color y los tejidos de la sierra.</p>
       <ul class="rasgos"><li>Serena</li><li>Afectuosa</li><li>Firme</li></ul>
       <p class="significado"><b>Sunqu:</b> «corazón» en quechua.</p>
-      <div class="compra"><p class="precio">40 €<small>750 ml · caja incluida</small></p><a class="enlace" data-wa="Sunqu" href="#inicio">Pedir Sunqu <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a></div>
+      <div class="compra"><p class="precio">40 €<small>750 ml · caja incluida</small></p><a class="enlace" data-wa="Sunqu" href="https://wa.me/51926941092?text=Hola%2C%20me%20interesa%20Sunqu%20de%20NAVE.%20%C2%BFMe%20pueden%20confirmar%20la%20disponibilidad%2C%20el%20precio%20total%20y%20las%20opciones%20de%20entrega%3F" target="_blank" rel="noopener noreferrer">Pedir Sunqu <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a></div>
     </article>
     <article class="ed-texto" aria-labelledby="t-nii">
       <p class="rotulo">Edición III · Selva</p>
@@ -330,7 +331,7 @@ button{font:inherit;color:inherit}
       <p class="cuerpo">Los tonos tierra, los trazos y el tocado de Nii evocan la selva. Una invitación a descubrir cada detalle.</p>
       <ul class="rasgos"><li>Vital</li><li>Contemplativa</li><li>Curiosa</li></ul>
       <p class="significado"><b>Nii:</b> «bosque» en shipibo-konibo.</p>
-      <div class="compra"><p class="precio">40 €<small>750 ml · caja incluida</small></p><a class="enlace" data-wa="Nii" href="#inicio">Pedir Nii <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a></div>
+      <div class="compra"><p class="precio">40 €<small>750 ml · caja incluida</small></p><a class="enlace" data-wa="Nii" href="https://wa.me/51926941092?text=Hola%2C%20me%20interesa%20Nii%20de%20NAVE.%20%C2%BFMe%20pueden%20confirmar%20la%20disponibilidad%2C%20el%20precio%20total%20y%20las%20opciones%20de%20entrega%3F" target="_blank" rel="noopener noreferrer">Pedir Nii <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-flecha"/></svg></a></div>
     </article>
 
     <div class="trio-cabeza" id="trioCabeza">
@@ -344,7 +345,7 @@ button{font:inherit;color:inherit}
     </div>
     <div class="trio-pie" id="trioPie">
       <button class="las-tres" type="button" id="lasTres" aria-pressed="false">Colección completa · 120 €</button>
-      <a class="boton granate" id="ctaPedido" data-wa="" href="#inicio"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-chat"/></svg><span id="ctaTexto">Pedir por WhatsApp</span></a>
+      <a class="boton granate" id="ctaPedido" data-wa="" href="https://wa.me/51926941092?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido%20de%20NAVE.%20%C2%BFQu%C3%A9%20ediciones%20tienen%20disponibles%20y%20cu%C3%A1les%20son%20las%20opciones%20de%20entrega%3F" target="_blank" rel="noopener noreferrer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-chat"/></svg><span id="ctaTexto">Pedir por WhatsApp</span></a>
       <p class="nota" id="ctaNota" aria-live="polite">Selecciona una edición o elige las tres. Cada botella incluye su caja.</p>
     </div>
 
@@ -414,8 +415,8 @@ button{font:inherit;color:inherit}
   </div>
   <div class="pie-nav">
     <div class="wrap">
-      <div class="grupo"><a href="#inicio" data-ir="1">Colección</a><a href="#marca">Nuestra historia</a></div>
-      <a class="wa" data-wa="" href="#inicio"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-chat"/></svg>Escríbenos por WhatsApp</a>
+      <div class="grupo"><a href="#t-donaire" data-ir="1">Colección</a><a href="#marca">Nuestra historia</a></div>
+      <a class="wa" data-wa="" href="https://wa.me/51926941092?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido%20de%20NAVE.%20%C2%BFQu%C3%A9%20ediciones%20tienen%20disponibles%20y%20cu%C3%A1les%20son%20las%20opciones%20de%20entrega%3F" target="_blank" rel="noopener noreferrer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-chat"/></svg>Escríbenos por WhatsApp</a>
       <div class="grupo"><a href="#aviso" data-abre="aviso" aria-controls="aviso" aria-expanded="false">Aviso legal</a><a href="#privacidad" data-abre="privacidad" aria-controls="privacidad" aria-expanded="false">Privacidad</a></div>
     </div>
   </div>
@@ -442,8 +443,8 @@ button{font:inherit;color:inherit}
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 
 <!-- ===================== CONFIGURACIÓN =====================
