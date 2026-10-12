@@ -5,6 +5,10 @@ const MODO = window.NAVE_MODO;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const gsap = window.gsap, ST = window.ScrollTrigger, ARC = window.NAVE_ARCOS;
 const mobile = () => innerWidth < 900;
+/* Móviles en horizontal (U-06, decisión f1): la etapa fijada mide lo que la pantalla y recorta el botón de pedido, así que usan la
+   versión estática. La consulta también coincide con una ventana de escritorio baja (alto <= 500 px y más ancha que alta): ahí también
+   se sirve la versión estática, sin 3D. */
+const apaisado = matchMedia('(max-height:500px) and (orientation:landscape)');
 const clamp01 = x => Math.min(1, Math.max(0, x));
 const sstep = (a,b,x)=>{ const t = clamp01((x-a)/(b-a)); return t*t*(3-2*t); };
 const lerp = (a,b,t)=>a+(b-a)*t;
@@ -36,7 +40,7 @@ inicio: try {
 if (!gsap || !ST){ MODO.fija('estatica', 'sin-gsap'); break inicio; }
 gsap.registerPlugin(ST);
 
-try { renderer = new THREE.WebGLRenderer({canvas:document.getElementById('escena'), antialias:true, alpha:true, powerPreference:'high-performance'}); } catch(e){ renderer = null; }
+if (!apaisado.matches) try { renderer = new THREE.WebGLRenderer({canvas:document.getElementById('escena'), antialias:true, alpha:true, powerPreference:'high-performance'}); } catch(e){ renderer = null; }
 
 /* textos fuera de la etapa: aparecen con el scroll */
 /* cada texto entra desde abajo al aparecer y sale hacia arriba al irse, siempre ligado al scroll */
@@ -48,8 +52,11 @@ if (!reduce) gsap.utils.toArray('[data-r]').forEach(el=>{
 });
 
 if (reduce){ MODO.fija('estatica', 'reduce'); break inicio; }
+if (apaisado.matches){ MODO.fija('estatica', 'apaisado'); break inicio; } // sin renderer: no se llegó a crear un contexto WebGL
 if (!renderer){ MODO.fija('estatica', 'sin-webgl'); break inicio; }
 renderer.domElement.addEventListener('webglcontextlost', ev=>{ ev.preventDefault(); aEstatica('contexto-perdido'); });
+/* al girar el móvil con la escena 3D activa se deshace igual que con el contexto perdido (la vuelta a vertical no la restaura: hasta recargar) */
+apaisado.addEventListener('change', ()=>{ if (apaisado.matches && activo) aEstatica('apaisado'); });
 /* al confirmar la edad desaparece el bloqueo de scroll de la puerta: ScrollTrigger recalcula */
 addEventListener('nave:edad-ok', ()=>ST.refresh());
 
@@ -367,6 +374,7 @@ function bucle(){
 function mejora(){
   if (MODO.listo){ renderer.dispose(); return; } // el vigilante o un fallo ya decidieron: la mejora tardía se descarta sin parpadeo
   const ancla = location.hash.length > 1 && location.hash !== '#inicio' && document.getElementById(location.hash.slice(1));
+  if (apaisado.matches){ renderer.dispose(); MODO.fija('estatica', 'apaisado'); return; } // el móvil se giró mientras cargaban las texturas
   if (scrollY > innerHeight*0.5 || ancla){ renderer.dispose(); MODO.fija('estatica', 'desplazado'); return; } // la visita ya está más abajo: fijar la etapa sería un salto
   etapa.classList.remove('estatica');
   st = ST.create({trigger:etapa, start:'top top', end:'+=470%', pin:true, anticipatePin:1});

@@ -6,7 +6,7 @@ const PRECIOS = window.NAVE_CONFIG.PRECIOS;
 /* ===================== MODO: única escritura de html[data-ready|data-modo|data-motivo] =====================
    data-ready se escribe una sola vez, cuando se decide el primer modo ('3d' o 'estatica'). data-modo puede pasar de '3d' a
    'estatica' después (contexto WebGL perdido, fallo en un fotograma) y nunca al revés sin recargar. data-motivo explica la versión
-   estática: reduce, sin-gsap, sin-webgl, sin-modulo, error, desplazado, tiempo, contexto-perdido.
+   estática: reduce, sin-gsap, sin-webgl, sin-modulo, error, desplazado, tiempo, contexto-perdido, apaisado (móvil en horizontal).
    El vigilante cubre lo que el módulo no puede contar: que no llegue a arrancar (sin-modulo) o que se quede esperando (tiempo). Su plazo
    corre desde que carga este script y no depende del evento load, que las propias texturas atascadas retrasarían. */
 window.NAVE_MODO = (function(){

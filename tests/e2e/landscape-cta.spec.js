@@ -13,7 +13,6 @@
  * @see ./a11y.spec.js
  * @see ./helpers/scroll.js
  */
-import { expectedRed } from './helpers/expected-red.js';
 import { expect, openPage, test as base } from './helpers/page.js';
 import { runIn } from './helpers/projects.js';
 import { getModo, waitSettled } from './helpers/ready.js';
@@ -124,7 +123,6 @@ test.describe('L1 the order CTA is reachable on landscape phones (U-06, f1)', ()
       test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
       test(`L1 ${viewport.width}x${viewport.height}: static layout (apaisado) and #lasTres, #ctaPedido, #ctaNota fully inside the viewport, hit-testable and clickable`, async ({ page, errors }) => {
-        expectedRed(test, 'E9', `landscape phones still get the 3D layout (data-modo=3d, no data-motivo=apaisado) and at the end of the pin ${viewport.red} are below the viewport bottom ${viewport.height}, clipped by the stage (U-06)`);
         await openPage(page);
         await waitSettled(page);
         const state = await modeOf(page);
@@ -145,7 +143,6 @@ test.describe('L2 a 3D page rolls back to the static layout when the phone is ro
   runIn(test, 'mobile-375');
 
   test('L2 375x667 in 3D, then 667x375: rolls back to estatica/apaisado (no pin left, no pageerror) and stays static after rotating back', async ({ page, errors }) => {
-    expectedRed(test, 'E9', 'rotating a 3D page to 667x375 leaves it in 3D (data-modo stays 3d, no rollback to estatica/apaisado) because nothing listens to the height media query (U-06)');
     await openPage(page);
     await waitSettled(page);
     expect(await getModo(page), '3D mode is required at the start (SwiftShader); portrait is the starting point of the rotation').toBe('3d');
