@@ -391,7 +391,6 @@ test.describe('I-05 age gate keyboard focus (static layout)', () => {
   runIn(test, 'reduced-motion');
 
   test('I-05 while #edad is open header, main and footer are inert (out of the accessibility tree) and the dialog is not', async ({ page }) => {
-    expectedRed(test, 'E8', 'header/main/footer are not inert while the gate is open, so a screen reader can browse the page behind the modal (I-05)');
     await openFresh(page);
     await expect(page.locator('#edad')).toBeVisible();
     expect(await page.evaluate(() => ['header', 'main', 'footer', '#edad'].map((s) => [s, document.querySelector(s).inert])), 'inert flags').toEqual([['header', true], ['main', true], ['footer', true], ['#edad', false]]);
@@ -422,7 +421,6 @@ test.describe('I-05 age gate keyboard focus (static layout)', () => {
   });
 
   test('I-05 confirming moves focus to the h1 (tabindex -1), lifts inert and the next Tab continues at the hero CTA', async ({ page }) => {
-    expectedRed(test, 'E8', 'confirming leaves focus on the button behind the hidden gate: it never moves to the h1 (I-05)');
     await openFresh(page);
     await page.locator('#edad-si').click();
     await expect(page.locator('#edad')).toBeHidden();
@@ -438,7 +436,6 @@ test.describe('I-05 age gate in 3D mode', () => {
   runIn(test, 'desktop');
 
   test('I-05 in 3D, confirming lands focus on the h1 without scrolling and leaves the pinned stage scrollable', async ({ page }) => {
-    expectedRed(test, 'E8', 'confirming leaves focus on the button behind the hidden gate: it never moves to the h1 (I-05)');
     await openPage(page, { consent: false }); // waits for data-ready: the scene settles behind the open gate
     await expect(page.locator('#edad')).toBeVisible();
     await page.locator('#edad-si').click();
@@ -464,7 +461,6 @@ test.describe('I-06 legal toggles (JS on)', () => {
   runIn(test, 'reduced-motion');
 
   test('I-06 opening one legal panel sets its own aria-expanded and resets the other; closing clears it; Enter works from the keyboard', async ({ page }) => {
-    expectedRed(test, 'E8', 'opening a second panel closes the first one but leaves the first toggle with aria-expanded="true" (I-06)');
     await openPage(page);
     const state = () => page.evaluate((ids) => ids.map((id) => ({ id, open: document.getElementById(id).open, expanded: document.querySelector(`[data-abre="${id}"]`).getAttribute('aria-expanded') })), LEGAL);
     const toggle = (id) => page.locator(`[data-abre="${id}"]`);
@@ -487,7 +483,6 @@ test.describe('I-06 legal text without JavaScript', () => {
 
   for (const id of LEGAL) {
     test(`I-06 with JS off the ${id} panel can be opened and its text read`, async ({ page }) => {
-      expectedRed(test, 'E8', '.legal summary is display:none and the footer link only jumps to the closed <details>: the legal text cannot be opened without JS (I-06)');
       await page.goto('/?region=pe');
       await page.locator('.edad a[href="#edad-pasa"]').click(); // the no-JS age confirmation (E7)
       await expect(page.locator('#edad')).toBeHidden();

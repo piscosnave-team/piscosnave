@@ -12,11 +12,19 @@
   raiz.classList.add('js');
   try { if (localStorage.getItem('nave-edad') === 'si') raiz.classList.add('edad-ok'); } catch (e) {}
   var cerrada = function(){ return raiz.classList.contains('edad-ok'); };
+  /* mientras la puerta está abierta, el resto de la página queda inerte: fuera del orden de Tab y del árbol de accesibilidad */
+  var marca = function(inerte){
+    ['header', 'main', 'footer'].forEach(function(t){ var e = document.querySelector(t); if (e) e.inert = inerte; });
+  };
   document.addEventListener('click', function(ev){
     if (cerrada() || !ev.target.closest || !ev.target.closest('#edad-si')) return;
     try { localStorage.setItem('nave-edad', 'si'); } catch (e) {}
     raiz.classList.add('edad-ok');
+    marca(false);
     window.dispatchEvent(new Event('nave:edad-ok'));
+    /* después del evento: ScrollTrigger.refresh() recoloca la etapa fijada y quitaría el foco a un h1 enfocado antes */
+    var h1 = document.querySelector('h1');
+    if (h1) h1.focus({preventScroll: true});
   });
   /* Tab y Mayús+Tab no salen de la puerta mientras está abierta */
   document.addEventListener('keydown', function(ev){
@@ -30,7 +38,9 @@
   });
   document.addEventListener('DOMContentLoaded', function(){
     var si = document.getElementById('edad-si');
-    if (!cerrada() && si) si.focus();
+    if (cerrada()) return;
+    marca(true);
+    if (si) si.focus();
   });
 })();
 </script>
@@ -267,7 +277,7 @@ main:focus{outline:none} /* destino de «Saltar al contenido»: solo se enfoca p
 .pie-nav a:hover{color:var(--blanco);text-decoration:underline}
 .pie-nav .grupo{display:flex;flex-wrap:wrap;gap:12px 28px}
 .pie-nav .wa{display:inline-flex;align-items:center;gap:8px}
-.legal summary{display:none}
+.js .legal summary{display:none}
 .legal details[open]{padding-top:20px}
 .legal .texto-legal{padding-bottom:22px;color:var(--rosa-claro);font-size:.875rem;max-width:80ch;display:grid;gap:.6em}
 .pie-final{padding-block:26px calc(30px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.875rem;color:var(--rosa-claro);display:grid;gap:6px;border-top:1px solid rgba(215,160,166,.3)}
@@ -330,7 +340,7 @@ html:has(:target) .edad{display:none}
           <p class="rotulo">Pisco Premium</p>
         </div>
         <div class="intro-b">
-          <h1>El alma del Perú en cada gota</h1>
+          <h1 tabindex="-1">El alma del Perú en cada gota</h1>
           <p class="lead">Pisco puro de quebranta, elaborado artesanalmente en Ica y vestido a mano por Nancy Ventura.</p>
           <div class="acciones">
             <a class="boton blanco" href="#trioArcos" data-ir="4.75">Elegir mi edición</a>

@@ -293,7 +293,11 @@ document.addEventListener('click', ev=>{
   slots.forEach((s,i)=>s.addEventListener('click', ()=>elige(window.NAVE_ELECCION === i ? -1 : i)));
   tres.addEventListener('click', ()=>elige(window.NAVE_ELECCION === 3 ? -1 : 3));
 
-  document.querySelectorAll('[data-abre]').forEach(a=>a.addEventListener('click', ev=>{ ev.preventDefault(); document.querySelectorAll('.legal details').forEach(d=>{ d.open = d.id === a.dataset.abre ? !d.open : false; }); a.setAttribute('aria-expanded', String(document.getElementById(a.dataset.abre).open)); }));
+  /* avisos legales: cada enlace [data-abre] refleja en aria-expanded si su <details> está abierto; abrir uno cierra el otro */
+  const paneles = [...document.querySelectorAll('.legal details')];
+  const sincroniza = ()=>document.querySelectorAll('[data-abre]').forEach(a=>a.setAttribute('aria-expanded', String(document.getElementById(a.dataset.abre).open)));
+  paneles.forEach(d=>d.addEventListener('toggle', sincroniza));
+  document.querySelectorAll('[data-abre]').forEach(a=>a.addEventListener('click', ev=>{ ev.preventDefault(); paneles.forEach(d=>{ d.open = d.id === a.dataset.abre ? !d.open : false; }); sincroniza(); }));
   /* puerta de edad: la abre, la cierra y guarda el consentimiento el script de <head> de index.html; aquí solo el aviso a menores */
   document.getElementById('edad-no').addEventListener('click', ()=>{ document.getElementById('edad-msg').textContent = NAVE_REGION.t('menor'); });
 })();

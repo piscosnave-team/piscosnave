@@ -79,7 +79,6 @@ test.describe('S2 age gate: first visit', () => {
   });
 
   test('S2b header, main and footer are inert while the gate is open (I-05)', async ({ page }) => {
-    expectedRed(test, 'E8', 'nothing marks header/main/footer inert while the gate is open (I-05)');
     await openFresh(page);
     await expect(page.locator('#edad')).toBeVisible();
     const inert = await page.evaluate(() => ['header', 'main', 'footer'].map((s) => [s, document.querySelector(s).inert]));
@@ -102,7 +101,6 @@ test.describe('S2 age gate: first visit', () => {
   });
 
   test('S2c after confirming, inert is gone, focus is on the h1 and nave:edad-ok fires once (I-05)', async ({ page }) => {
-    expectedRed(test, 'E8', 'confirming leaves focus on the button behind the hidden gate and fires no nave:edad-ok event (I-05)');
     await page.addInitScript(() => {
       window.__edadOk = 0;
       window.addEventListener('nave:edad-ok', () => { window.__edadOk++; }, true);
