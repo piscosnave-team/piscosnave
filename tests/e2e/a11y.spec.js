@@ -17,7 +17,6 @@
  */
 import AxeBuilder from '@axe-core/playwright';
 import { AXE_TAGS, loadBaseline, newViolations, scanEach, scanPage, scanSections } from './helpers/axe.js';
-import { expectedRed } from './helpers/expected-red.js';
 import { expect, openPage, test as base } from './helpers/page.js';
 import { runIn } from './helpers/projects.js';
 import { getModo, waitSettled } from './helpers/ready.js';
@@ -716,19 +715,16 @@ test.describe('L5 every target=_blank link announces that it opens in a new wind
   };
 
   test('L5 ?region=pe: each target=_blank link contains an .sr span reading "(se abre en una ventana nueva)"', async ({ page }) => {
-    expectedRed(test, 'E9', 'no target=_blank link has an .sr new-window cue yet (0 of 5): screen-reader users are not told that the link opens a new tab (I-11)');
     await openPage(page, { region: 'pe' });
     expect(await cueProblems(page, 'pe'), 'links without the approved cue').toEqual([]);
   });
 
   test('L5 ?region=eu: the cue is translated through the dictionary to "(opens in a new window)"', async ({ page }) => {
-    expectedRed(test, 'E9', 'no target=_blank link has an .sr new-window cue yet, so there is nothing to translate (I-11)');
     await openPage(page, { region: 'eu' });
     expect(await cueProblems(page, 'eu'), 'links without the approved cue').toEqual([]);
   });
 
   test('L5 the cue survives the order-CTA text rewrite and a region switch both ways', async ({ page }) => {
-    expectedRed(test, 'E9', 'no target=_blank link has an .sr new-window cue yet (I-11)');
     await openPage(page, { region: 'pe' });
     await page.locator('#trioArcos .slot[data-ed="Sunqu"]').click();
     await expect(page.locator('#ctaTexto')).toHaveText('Pedir Sunqu por WhatsApp'); // visible label is unchanged: the cue is an extra .sr child, not part of #ctaTexto

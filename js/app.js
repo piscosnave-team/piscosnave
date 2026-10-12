@@ -118,6 +118,7 @@ window.NAVE_REGION = (function(){
     'Principal':'Main',
     'Saltar al contenido':'Skip to content',
     'Ir al pedido':'Go to order',
+    '(se abre en una ventana nueva)':'(opens in a new window)',
     'Región y moneda':'Region and currency',
     'Colección':'Collection',
     'Nuestra historia':'Our story',
