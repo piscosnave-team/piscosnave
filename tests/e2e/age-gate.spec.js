@@ -14,7 +14,6 @@
  *   - tests marked green today are guards for the inversion (gate visible by default): they must stay green
  * @see ./resilience.spec.js
  */
-import { expectedRed } from './helpers/expected-red.js';
 import { expect, openPage, test } from './helpers/page.js';
 import { runIn } from './helpers/projects.js';
 
@@ -172,7 +171,6 @@ test.describe('S2g short landscape viewports (I-10)', () => {
       test.use({ viewport });
 
       test('S2g .edad-caja scrolls and both buttons can be scrolled into view and clicked', async ({ page }) => {
-        expectedRed(test, 'E9', '.edad-caja has no overflow-y:auto: on a short viewport the gate content is clipped (I-10)');
         await openFresh(page);
         await expect(page.locator('#edad')).toBeVisible();
         expect(await page.locator('.edad-caja').evaluate((el) => getComputedStyle(el).overflowY), '.edad-caja computed overflow-y').toMatch(/^(auto|scroll)$/);

@@ -72,7 +72,9 @@ html{scrollbar-color:var(--rosa) var(--blanco)}
 body{margin:0;background:var(--blanco);color:var(--granate);font:400 1.0625rem/1.6 var(--sans);overflow-x:hidden;overflow-x:clip;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--rosa);color:var(--granate-hondo)}
 a{color:inherit;text-underline-offset:.22em;text-decoration-thickness:1px}
-:focus-visible{outline:2px solid var(--rosa);outline-offset:3px;border-radius:4px}
+/* Aro de enfoque (WCAG 1.4.11, >= 3:1): granate sobre las superficies claras; las oscuras (cabecera, hero, manifiesto, pie, puerta de edad) conservan el rosa */
+:focus-visible{outline:2px solid var(--granate);outline-offset:3px;border-radius:4px}
+.cabecera :focus-visible,.edad :focus-visible,.h-texto :focus-visible,.manifiesto-sec :focus-visible,.pie :focus-visible{outline-color:var(--rosa)}
 h1,h2,h3{font-weight:700;letter-spacing:-0.03em;line-height:1;text-wrap:balance;margin:0}
 p{margin:0;text-wrap:pretty}
 ul,ol{margin:0;padding:0;list-style:none}
@@ -101,11 +103,13 @@ main:focus{outline:none} /* destino de «Saltar al contenido»: solo se enfoca p
 .edad-ok .edad{display:none}
 .js:not(.edad-ok){overflow:hidden}
 .edad{position:fixed;inset:0;z-index:100;background:var(--granate);color:var(--blanco);display:grid;place-items:center;padding:24px;text-align:center}
-.edad-caja{display:grid;justify-items:center;gap:26px;max-width:420px}
+/* En pantallas bajas (móvil en horizontal) la caja se desplaza por dentro: los dos botones siguen al alcance (I-10) */
+.edad-caja{display:grid;justify-items:center;gap:26px;max-width:420px;max-height:calc(100vh - 48px);max-height:calc(100svh - 48px);overflow-y:auto}
 .edad .logo{width:180px}
 .edad p{font-size:1.125rem}
 .edad .fila{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
 .edad small{color:var(--rosa-claro);font-size:.875rem}
+@media (max-height:480px){.edad{padding:12px}.edad-caja{gap:14px;max-height:calc(100vh - 24px);max-height:calc(100svh - 24px)}.edad .logo{width:120px}}
 
 /* ---------- Escena 3D ---------- */
 #escena{position:fixed;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;opacity:0;transition:opacity 900ms var(--ease-out)}

@@ -676,7 +676,6 @@ test.describe('L4 focus-ring contrast is at least 3:1 against the section behind
   const describeBad = (list) => list.filter((s) => s.problems.length || s.ratio < 3).map((s) => `${s.label}: ${s.problems.length ? s.problems.join('; ') : `ring ${s.ring} on ${s.bg} = ${s.ratio.toFixed(2)}:1`}`);
 
   test('L4 on light sections (edition links, edition slots, #lasTres, #ctaPedido) the focus ring is at least 3:1', async ({ page }) => {
-    expectedRed(test, 'E9', 'the global :focus-visible ring is rosa (#D7A0A6), about 2.0:1 on the light sections (blanco), under the 3:1 WCAG 1.4.11 minimum (I-07)');
     const facts = await sample(page);
     const light = facts.filter((s) => s.tone === 'light');
     expect(light.length, `light-section controls sampled: ${light.map((s) => s.label).join(', ')} (3 edition links, 3 slots, #lasTres, #ctaPedido)`).toBeGreaterThanOrEqual(8);
