@@ -194,7 +194,7 @@ window.NAVE_REGION = (function(){
   const DIC = {pe: PE, eu: EU};
   /* recoge una vez los textos y atributos originales */
   const nodos = [], attrs = [];
-  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement.closest('script,style,svg') || !n.nodeValue.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement.closest('script,style,svg,noscript') || !n.nodeValue.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
   while (w.nextNode()) nodos.push({n: w.currentNode, orig: w.currentNode.nodeValue, clave: w.currentNode.nodeValue.trim()});
   document.querySelectorAll('[alt],[aria-label]').forEach(el=>['alt','aria-label'].forEach(a=>{ if (el.hasAttribute(a) && !el.closest('svg')) attrs.push({el, a, orig: el.getAttribute(a)}); }));
   let actual = 'pe';
@@ -268,10 +268,6 @@ document.addEventListener('click', ev=>{
   tres.addEventListener('click', ()=>elige(window.NAVE_ELECCION === 3 ? -1 : 3));
 
   document.querySelectorAll('[data-abre]').forEach(a=>a.addEventListener('click', ev=>{ ev.preventDefault(); document.querySelectorAll('.legal details').forEach(d=>{ d.open = d.id === a.dataset.abre ? !d.open : false; }); a.setAttribute('aria-expanded', String(document.getElementById(a.dataset.abre).open)); }));
-  /* puerta de edad */
-  const gate = document.getElementById('edad');
-  let ok = false; try { ok = localStorage.getItem('nave-edad') === 'si'; } catch(e){}
-  if (!ok){ gate.hidden = false; document.documentElement.style.overflow = 'hidden'; document.getElementById('edad-si').focus(); }
-  document.getElementById('edad-si').addEventListener('click', ()=>{ try{ localStorage.setItem('nave-edad','si'); }catch(e){} gate.hidden = true; document.documentElement.style.overflow = ''; window.ScrollTrigger && ScrollTrigger.refresh(); });
+  /* puerta de edad: la abre, la cierra y guarda el consentimiento el script de <head> de index.html; aquí solo el aviso a menores */
   document.getElementById('edad-no').addEventListener('click', ()=>{ document.getElementById('edad-msg').textContent = NAVE_REGION.t('menor'); });
 })();

@@ -7,6 +7,7 @@
  *   - S7c: webglcontextlost on #escena in 3D -> within 1 s estatica/contexto-perdido, no pin, catalogue visible
  *   - S7e: JS disabled -> gate visible, noscript :target link confirms it (not remembered), every [data-wa] href is a wa.me default
  *     byte-equal to NAVE_WA(region pe), target _blank, rel noopener noreferrer, [data-ir] hrefs resolve to ids
+ *     and the no-JS confirmation survives later fragment navigation (a [data-ir]/anchor click does not bring the gate back)
  *   - S7f: one scroll call per [data-ir] click, no direct click listeners on [data-ir], one delegated document listener, also after rollback
  *   - S7g: reduced motion -> 0 pageerror, 0 console error. S7h: data-ready once + modo 3d, first viewport stable across the upgrade
  *   - S7i: consent + #t-donaire in the URL -> estatica/desplazado, target in view. I-39: data-ready once on both paths; watchdog -> tiempo
@@ -190,14 +191,12 @@ test.describe('S7e JavaScript disabled', () => {
   test.use({ javaScriptEnabled: false });
 
   test('S7e the age gate is visible without JS (no hidden attribute)', async ({ page }) => {
-    expectedRed(test, 'E7', 'the gate carries `hidden` in the served HTML and only app.js un-hides it (U-03)');
     await page.goto('/');
     await expect(page.locator('#edad')).toBeVisible();
     await expect(page.locator('#edad-si'), 'the JS buttons are hidden without JS').toBeHidden();
   });
 
   test('S7e the <noscript> :target link confirms the gate for this visit only (e2)', async ({ page }) => {
-    expectedRed(test, 'E7', 'there is no <noscript> confirm link and the gate is not in the served HTML (U-03, e2)');
     await page.goto('/');
     await expect(page.locator('#edad')).toBeVisible();
     await page.getByRole('link', { name: 'Tengo 18 años o más' }).click({ timeout: 3_000 });
@@ -207,14 +206,24 @@ test.describe('S7e JavaScript disabled', () => {
     await expect(page.locator('#edad')).toBeVisible();
   });
 
+  test('S7e the confirmation survives later fragment navigation: following a [data-ir] or anchor link does not bring the gate back (e2)', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Tengo 18 años o más' }).click({ timeout: 3_000 });
+    await expect(page.locator('#edad')).toBeHidden();
+    await page.locator('header nav a[data-ir="1"]').click();
+    await expect(page).toHaveURL(/#t-donaire$/);
+    await expect(page.locator('#edad'), 'the gate stays hidden after the next fragment navigation').toBeHidden();
+    await page.locator('header nav a[href="#marca"]').click();
+    await expect(page).toHaveURL(/#marca$/);
+    await expect(page.locator('#edad')).toBeHidden();
+  });
+
   test('S7e the editions, prices, picker and order CTA are visible without JS', async ({ page }) => {
-    expectedRed(test, 'E7', 'the 3D layout is the served default: .ed-texto is visibility:hidden and its children opacity:0 until JS runs (U-01)');
     await page.goto('/');
     expect(await catalogueProblems(page)).toEqual([]);
   });
 
   test('S7e every order CTA has a real wa.me default href, equal to what NAVE_WA produces for pe with JS on (I-02)', async ({ page, browser }) => {
-    expectedRed(test, 'E7', 'the markup has href="#inicio" on every [data-wa]; hrefs exist only after JS runs (I-02)');
     await page.goto('/');
     const served = await page.locator('[data-wa]').evaluateAll((els) => els.map((a) => ({ wa: a.getAttribute('data-wa'), href: a.getAttribute('href'), target: a.getAttribute('target'), rel: a.getAttribute('rel') })));
     expect(served.length, 'the page has [data-wa] links').toBeGreaterThanOrEqual(5);
@@ -240,7 +249,6 @@ test.describe('S7e JavaScript disabled', () => {
   });
 
   test('S7e every [data-ir] href is a fragment that resolves to an existing id', async ({ page }) => {
-    expectedRed(test, 'E7', 'every [data-ir] href is the placeholder #inicio, so the segments are not reachable without JS (spec 4.0)');
     await page.goto('/');
     const hrefs = await page.locator('[data-ir]').evaluateAll((els) => els.map((a) => ({ ir: a.getAttribute('data-ir'), href: a.getAttribute('href'), found: /^#[^\s#]+$/.test(a.getAttribute('href') || '') && !!document.getElementById(a.getAttribute('href').slice(1)) })));
     expect(hrefs.filter((h) => !h.found), 'unresolved [data-ir] hrefs').toEqual([]);

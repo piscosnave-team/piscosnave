@@ -47,7 +47,6 @@ const installGateSampler = () => {
 
 test.describe('S2 age gate: served markup', () => {
   test('S2a the served HTML has #edad without a hidden attribute', async ({ request }) => {
-    expectedRed(test, 'E7', 'index.html ships <div id="edad" ... hidden>; app.js un-hides it (U-03)');
     const html = await (await request.get('/index.html')).text();
     const tag = /<[a-z][^>]*\bid="edad"[^>]*>/i.exec(html)?.[0];
     expect(tag, 'the #edad opening tag is in the served HTML').toBeTruthy();
@@ -65,7 +64,6 @@ test.describe('S2 age gate: first visit', () => {
   });
 
   test('S2b Tab and Shift+Tab stay inside the gate and Escape does not close it', async ({ page }) => {
-    expectedRed(test, 'E7', 'no Tab trap: after #edad-no and the region buttons, Tab moves into the page behind the gate (spec 4.2, boot script)');
     await openFresh(page);
     await expect(page.locator('#edad-si')).toBeFocused();
     const outside = [];
@@ -146,7 +144,6 @@ test.describe('S2 age gate: stored consent', () => {
 
 test.describe('S2 age gate: depends on no other script', () => {
   test('S2e with js/*, cdnjs/jsdelivr and vendor/* aborted the gate is visible and still dismissable', async ({ page }) => {
-    expectedRed(test, 'E7', 'the gate is hidden in the markup and only js/app.js shows and dismisses it: with it aborted the gate never appears (U-03)');
     await page.route(nonBoot, abort);
     await openFresh(page);
     await expect(page.locator('#edad')).toBeVisible();

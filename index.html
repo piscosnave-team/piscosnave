@@ -3,6 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>
+/* Puerta de edad y marca de JS. Va primero en <head> y no depende de ningún otro script (ni GSAP, ni three.js, ni js/app.js):
+   añade .js, lee el consentimiento guardado y marca .edad-ok antes del primer pintado, y atiende #edad-si y el Tab de la puerta.
+   Es una declaración, no una verificación; la clave nave-edad y su valor no cambian. */
+(function(){
+  var raiz = document.documentElement;
+  raiz.classList.add('js');
+  try { if (localStorage.getItem('nave-edad') === 'si') raiz.classList.add('edad-ok'); } catch (e) {}
+  var cerrada = function(){ return raiz.classList.contains('edad-ok'); };
+  document.addEventListener('click', function(ev){
+    if (cerrada() || !ev.target.closest || !ev.target.closest('#edad-si')) return;
+    try { localStorage.setItem('nave-edad', 'si'); } catch (e) {}
+    raiz.classList.add('edad-ok');
+    window.dispatchEvent(new Event('nave:edad-ok'));
+  });
+  /* Tab y Mayús+Tab no salen de la puerta mientras está abierta */
+  document.addEventListener('keydown', function(ev){
+    var caja = document.getElementById('edad');
+    if (ev.key !== 'Tab' || cerrada() || !caja) return;
+    var botones = Array.prototype.filter.call(caja.querySelectorAll('button'), function(b){ return b.offsetParent !== null; });
+    if (!botones.length) return;
+    var primero = botones[0], ultimo = botones[botones.length - 1], activo = document.activeElement;
+    if (!caja.contains(activo) || (ev.shiftKey && activo === primero)) { ev.preventDefault(); (ev.shiftKey ? ultimo : primero).focus(); }
+    else if (!ev.shiftKey && activo === ultimo) { ev.preventDefault(); primero.focus(); }
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    var si = document.getElementById('edad-si');
+    if (!cerrada() && si) si.focus();
+  });
+})();
+</script>
 <title>NAVE | Pisco Premium de Ica, Perú</title>
 <meta name="description" content="Descubre NAVE: pisco puro de quebranta elaborado artesanalmente en Ica y vestido a mano por Nancy Ventura. Tres ediciones: Donaire, Sunqu y Nii.">
 <meta name="theme-color" content="#572333">
@@ -54,6 +85,9 @@ button{font:inherit;color:inherit}
 .enlace svg{width:16px;height:16px}
 
 /* ---------- Puerta de edad ---------- */
+/* Visible por defecto en el HTML; el script de <head> añade .edad-ok antes del primer pintado si ya hay consentimiento */
+.edad-ok .edad{display:none}
+.js:not(.edad-ok){overflow:hidden}
 .edad{position:fixed;inset:0;z-index:100;background:var(--granate);color:var(--blanco);display:grid;place-items:center;padding:24px;text-align:center}
 .edad-caja{display:grid;justify-items:center;gap:26px;max-width:420px}
 .edad .logo{width:180px}
@@ -234,6 +268,14 @@ button{font:inherit;color:inherit}
 .legal .texto-legal{padding-bottom:22px;color:var(--rosa-claro);font-size:.875rem;max-width:80ch;display:grid;gap:.6em}
 .pie-final{padding-block:26px calc(30px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.875rem;color:var(--rosa-claro);display:grid;gap:6px;border-top:1px solid rgba(215,160,166,.3)}
 </style>
+<noscript><style>
+/* Sin JS: un enlace :target confirma la mayoría de edad solo para esta visita (no se recuerda). Con JS esta hoja no se aplica,
+   así que #edad-pasa en la URL no salta la puerta. La segunda regla hace que la confirmación sobreviva a la siguiente
+   navegación por ancla; la primera es el respaldo para navegadores sin :has(). */
+.edad .fila,.edad .region{display:none}
+#edad-pasa:target + .edad{display:none}
+html:has(:target) .edad{display:none}
+</style></noscript>
 </head>
 <body>
 
@@ -244,11 +286,13 @@ button{font:inherit;color:inherit}
   <g id="icono-flecha"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
 </defs></svg>
 
-<div class="edad" id="edad" role="dialog" aria-modal="true" aria-labelledby="edad-t" hidden>
+<span id="edad-pasa"></span>
+<div class="edad" id="edad" role="dialog" aria-modal="true" aria-labelledby="edad-t">
   <div class="edad-caja">
     <svg class="logo" viewBox="78 159.91 454 275.09" aria-hidden="true"><use href="#logo-nave"/></svg>
     <p id="edad-t">Confirma que tienes 18 años o más para entrar.</p>
     <div class="fila"><button class="boton blanco" type="button" id="edad-si">Tengo 18 años o más</button><button class="boton linea" type="button" id="edad-no">Soy menor de 18</button></div>
+    <noscript><a class="boton blanco" href="#edad-pasa">Tengo 18 años o más</a></noscript>
     <small id="edad-msg" aria-live="polite">Bebe con moderación.</small>
     <div class="region" role="group" aria-label="Región y moneda"><button type="button" data-region="pe" aria-pressed="false">PE · S/</button><button type="button" data-region="eu" aria-pressed="false">EU · €</button></div>
   </div>

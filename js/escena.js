@@ -46,6 +46,8 @@ if (!reduce) gsap.utils.toArray('[data-r]').forEach(el=>{
 
 if (reduce || !renderer) break inicio;
 renderer.domElement.addEventListener('webglcontextlost', ev=>{ ev.preventDefault(); aEstatica(); });
+/* al confirmar la edad desaparece el bloqueo de scroll de la puerta: ScrollTrigger recalcula */
+addEventListener('nave:edad-ok', ()=>ST.refresh());
 
 /* ===================== ETAPA FIJADA =====================
    P de 0 a 5: 0-1 presencia y apertura del arco de luz, 1-2 Donaire, 2-3 Sunqu, 3-4 Nii, 4-5 las tres juntas. */
