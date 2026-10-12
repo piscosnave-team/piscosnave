@@ -18,7 +18,6 @@
  * @see ./helpers/scroll.js
  * @see ./helpers/budget.js
  */
-import { expectedRed } from './helpers/expected-red.js';
 import { runIn } from './helpers/projects.js';
 import { configuredNumbers, expect, openPage, test, waNumberOf, waTextOf } from './helpers/page.js';
 import { BUDGET_BYTES, trackFirstView } from './helpers/budget.js';
@@ -221,11 +220,9 @@ test.describe('S6 no horizontal overflow', () => {
           test.use({ reducedMotion: 'reduce' }); // layout of the fixed header does not depend on the 3D scene
 
           test('S6b header controls (region switch, Pedidos) are fully inside the 320px viewport', async ({ page }) => {
-            // NEW finding surfaced while writing this harness (not in report 340): at 320px the "Pedidos" button ends at
-            // x=321 (1px past the viewport, ignoring the 18px gutter). body{overflow-x:clip} hides it from the S6 scrollWidth
-            // check, so only a geometric check sees it. Owner step: none scheduled; Yui must assign it (E9 is the closest
-            // fit: short/narrow viewports) or delete this test. See the E3 report.
-            expectedRed(test, 'E9', 'header nav overruns the 320px viewport by 1px ("Pedidos" right edge at 321)');
+            // Found while writing this harness (not in report 340): the 320px header used to end at x=321 (1px past the viewport,
+            // ignoring the 18px gutter) and body{overflow-x:clip} hides that from the S6 scrollWidth check, so only this geometric check
+            // sees it. Fixed in E9 (index.html: @media (max-width:340px) shrinks the .cabecera gaps).
             await openPage(page, { wait: false });
             const outside = await page.locator('.cabecera .region, .cabecera .boton').evaluateAll((els) =>
               els

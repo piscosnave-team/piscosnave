@@ -129,6 +129,8 @@ main:focus{outline:none} /* destino de «Saltar al contenido»: solo se enfoca p
 .region button:not([aria-pressed="true"]):hover{background:rgba(247,245,240,.12)}
 .edad .region{margin-top:4px}
 @media (max-width:759px){.cabecera .sec{display:none}:root{--barra:58px}.cabecera nav{gap:10px}.region button{padding:0 .7em}}
+/* 320 px: iso + región + «Pedidos» sumaban 303 px frente a los 284 px del ancho útil y «Pedidos» acababa en x=321, fuera de la pantalla */
+@media (max-width:340px){.cabecera .wrap{gap:8px}.cabecera nav{gap:6px}}
 
 /* ================= ETAPA: presencia, ediciones y las tres juntas (fijada) ================= */
 .etapa{--fondo:radial-gradient(70% 80% at 70% 58%,#6c2b3f 0%,var(--granate) 46%,var(--granate-hondo) 100%);position:relative;height:100vh;height:100svh;overflow:hidden;background:var(--fondo)}
