@@ -82,6 +82,14 @@ addEventListener('pointerdown', ()=>{ puntero = true; clearTimeout(sueltaPuntero
 const alSoltar = ()=>{ sueltaPuntero = setTimeout(()=>{ puntero = false; }, 500); };
 addEventListener('pointerup', alSoltar, true); addEventListener('pointercancel', alSoltar, true);
 etapa.addEventListener('focusin', ev=>{ if (!puntero) irAlSegmento(ev.target); });
+/* «Ir al pedido»: el ancla nativa no llega al último paso de la etapa fijada; se enfoca el primer botón y se va a su segmento */
+document.querySelector('.salto[href="#trioArcos"]').addEventListener('click', ev=>{
+  if (!st) return;
+  ev.preventDefault();
+  const primero = document.querySelector('.slot');
+  primero.focus({preventScroll: true});
+  irAlSegmento(primero);
+});
 
 ARC.montar(document.getElementById('hArco'), 'presencia');
 const nichos = [...document.querySelectorAll('.nicho')];

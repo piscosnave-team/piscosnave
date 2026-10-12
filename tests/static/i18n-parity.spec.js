@@ -6,7 +6,7 @@
  *   - every translatable base-HTML text node has an EU entry, except the explicit proper-noun/symbol allow-list
  *   - JS.pe and JS.eu expose identical key sets
  *   - price-bearing dictionary keys only carry amounts that exist in NAVE_CONFIG.PRECIOS (red until E5)
- *   - the approved new UI strings exist in both languages (red until E8: skip links, E9: new-window cue)
+ *   - the approved new UI strings exist in both languages (red until E9: new-window cue)
  * @edge-cases
  *   - empty alt="" / aria-label="" are untranslatable by design and ignored
  *   - noscript, script, style and svg subtrees are not translated (same filter as the page walker)
@@ -42,8 +42,8 @@ const allowed = (key) => ALLOW_UNTRANSLATED.some((a) => (a instanceof RegExp ? a
 
 /** Approved new UI strings (spec 4.0), ES -> EN. */
 const APPROVED_NEW = [
-  { es: 'Saltar al contenido', en: 'Skip to content', step: 'E8', why: 'skip link (K4, I-08) does not exist yet' },
-  { es: 'Ir al pedido', en: 'Go to order', step: 'E8', why: 'skip link (K4, I-08) does not exist yet' },
+  { es: 'Saltar al contenido', en: 'Skip to content' },
+  { es: 'Ir al pedido', en: 'Go to order' },
   { es: '(se abre en una ventana nueva)', en: '(opens in a new window)', step: 'E9', why: 'target=_blank cue (L5, I-11) does not exist yet' },
 ];
 
@@ -99,7 +99,7 @@ test.describe('ST-I18N dictionary parity', () => {
 
   for (const s of APPROVED_NEW) {
     test(`approved new string "${s.es}" exists in the base HTML and is translated to "${s.en}"`, async () => {
-      expectedRed(test, s.step, s.why);
+      if (s.step) expectedRed(test, s.step, s.why);
       expect(new Set(domKeys()).has(s.es), `base HTML must contain the text "${s.es}"`).toBe(true);
       expect(loadDictionaries().EU[s.es], `EU dictionary entry for "${s.es}"`).toBe(s.en);
     });

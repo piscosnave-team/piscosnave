@@ -116,6 +116,8 @@ window.NAVE_REGION = (function(){
     'Bebe con moderación.':'Please drink responsibly.',
     'NAVE, inicio':'NAVE, home',
     'Principal':'Main',
+    'Saltar al contenido':'Skip to content',
+    'Ir al pedido':'Go to order',
     'Región y moneda':'Region and currency',
     'Colección':'Collection',
     'Nuestra historia':'Our story',

@@ -68,6 +68,8 @@ p{margin:0;text-wrap:pretty}
 ul,ol{margin:0;padding:0;list-style:none}
 button{font:inherit;color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.salto:focus{clip:auto;width:auto;height:auto;overflow:visible;white-space:normal;left:8px;top:8px;z-index:200;padding:12px 18px;background:var(--blanco);color:var(--granate);font-weight:700;border-radius:8px;text-decoration:none}
+main:focus{outline:none} /* destino de «Saltar al contenido»: solo se enfoca por programa, un aro del ancho de la página no ayuda */
 .wrap{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--gutter)}
 .logo{display:block;fill:currentColor}
 .rotulo{font-size:.75rem;letter-spacing:.24em;text-transform:uppercase;font-weight:700}
@@ -303,6 +305,7 @@ html:has(:target) .edad{display:none}
 <canvas id="escena" aria-hidden="true"></canvas>
 
 <header class="cabecera">
+  <a class="sr salto" href="#contenido">Saltar al contenido</a><a class="sr salto" href="#trioArcos">Ir al pedido</a>
   <div class="wrap">
     <a href="#inicio" data-ir="0" aria-label="NAVE, inicio"><svg class="logo iso" viewBox="113 172 151.46 251" aria-hidden="true"><use href="#iso-nv"/></svg></a>
     <nav aria-label="Principal">
@@ -314,7 +317,7 @@ html:has(:target) .edad{display:none}
   </div>
 </header>
 
-<main>
+<main id="contenido" tabindex="-1">
   <section class="etapa estatica" id="inicio" aria-label="NAVE Pisco Premium">
     <div class="presencia">
       <div class="h-caja" id="hCaja">

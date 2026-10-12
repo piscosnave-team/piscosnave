@@ -309,7 +309,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   });
 
   test('K4 the first two Tab stops are the skip links (`Saltar al contenido` -> main, `Ir al pedido` -> the order widget), hidden until focused (I-08)', async ({ page }) => {
-    expectedRed(test, 'E8', 'there are no skip links: the first Tab stop is the header logo link (I-08)');
     await open3d(page);
     const skip = page.getByRole('link', { name: 'Saltar al contenido', exact: true });
     const order = page.getByRole('link', { name: 'Ir al pedido', exact: true });
@@ -370,7 +369,6 @@ test.describe('K4 skip links in the EU region (I-08)', () => {
   runIn(test, 'reduced-motion');
 
   test('K4 the first two Tab stops are `Skip to content` and `Go to order` with ?region=eu', async ({ page }) => {
-    expectedRed(test, 'E8', 'there are no skip links: the first Tab stop is the header logo link (I-08)');
     await openPage(page, { region: 'eu' });
     const label = () => page.evaluate(() => (document.activeElement.getAttribute('aria-label') || document.activeElement.textContent).trim());
     await page.keyboard.press('Tab');
