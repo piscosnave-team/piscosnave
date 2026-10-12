@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+window.NAVE_3D = 'iniciando'; // el vigilante de js/app.js distingue así «el módulo no arrancó» de «arrancó y se quedó esperando»
+const MODO = window.NAVE_MODO;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const gsap = window.gsap, ST = window.ScrollTrigger, ARC = window.NAVE_ARCOS;
 const mobile = () => innerWidth < 900;
@@ -12,12 +14,12 @@ const trioArcosEl = [...document.querySelectorAll('.trio-arco')];
 
 /* La página se sirve en su versión estática (.estatica en el HTML); este módulo solo la sustituye por la 3D cuando todo lo que
    puede fallar ya salió bien (ver mejora() al final). Estado compartido con aEstatica(), que vuelve atrás si algo falla después. */
-let st = null, renderer = null, activo = false, descartado = false;
+let st = null, renderer = null, activo = false;
 const ESTILOS_3D = '.intro-a > *, .intro-b > *, .h-texto, .h-arco, .desliza, .luz, .nichos, .nicho, .nombre-fondo, .ed-texto, .ed-texto > *, .trio-cabeza, .trio-cabeza > *, .trio-arcos, .trio-arco, .trio-arco .respaldo, .slot .etiqueta, .trio-pie, .trio-pie > *, .pasos, .arrastra, .zona-arrastre';
 
 /* Vuelve a la versión estática: para el bucle, mata el pin, borra los estilos en línea que escribió la escena 3D y suelta WebGL */
-function aEstatica(){
-  descartado = true; activo = false;
+function aEstatica(motivo){
+  activo = false;
   gsap.killTweensOf('.intro-a > *, .intro-b > *');
   if (st){ st.kill(true); st = null; }
   document.querySelectorAll(ESTILOS_3D).forEach(el=>el.removeAttribute('style'));
@@ -25,12 +27,13 @@ function aEstatica(){
   html.classList.remove('con-3d');
   ST.refresh();
   if (renderer) renderer.dispose();
+  MODO.fija('estatica', motivo);
 }
 
 /* Todo el trabajo 3D vive en este bloque etiquetado: se sale con `break inicio` (sin GSAP, movimiento reducido, sin WebGL) y
    cualquier fallo cae en el catch del final, que deja la versión estática. */
 inicio: try {
-if (!gsap || !ST) break inicio;
+if (!gsap || !ST){ MODO.fija('estatica', 'sin-gsap'); break inicio; }
 gsap.registerPlugin(ST);
 
 try { renderer = new THREE.WebGLRenderer({canvas:document.getElementById('escena'), antialias:true, alpha:true, powerPreference:'high-performance'}); } catch(e){ renderer = null; }
@@ -44,8 +47,9 @@ if (!reduce) gsap.utils.toArray('[data-r]').forEach(el=>{
     .to(el, {opacity:0, y:-46, filter:'blur(10px)', duration:0.28, ease:'power2.in'});
 });
 
-if (reduce || !renderer) break inicio;
-renderer.domElement.addEventListener('webglcontextlost', ev=>{ ev.preventDefault(); aEstatica(); });
+if (reduce){ MODO.fija('estatica', 'reduce'); break inicio; }
+if (!renderer){ MODO.fija('estatica', 'sin-webgl'); break inicio; }
+renderer.domElement.addEventListener('webglcontextlost', ev=>{ ev.preventDefault(); aEstatica('contexto-perdido'); });
 /* al confirmar la edad desaparece el bloqueo de scroll de la puerta: ScrollTrigger recalcula */
 addEventListener('nave:edad-ok', ()=>ST.refresh());
 
@@ -326,25 +330,26 @@ function frame(){
 /* un fallo en un fotograma devuelve la página a la versión estática en lugar de dejar la escena congelada */
 function bucle(){
   if (!activo) return;
-  try { frame(); } catch(e){ console.warn('NAVE: la escena 3D falló, vuelve la versión estática', e); aEstatica(); }
+  try { frame(); } catch(e){ console.warn('NAVE: la escena 3D falló, vuelve la versión estática', e); aEstatica('error'); }
 }
 
 /* ===================== Mejora a 3D =====================
    Todo lo que puede fallar ya pasó con la página todavía estática. Este paso es síncrono: quita .estatica, crea el pin y arranca el
    bucle; si algo falla a medias, el catch de abajo deshace el pin y deja la versión estática. */
 function mejora(){
-  if (descartado) return;
+  if (MODO.listo){ renderer.dispose(); return; } // el vigilante o un fallo ya decidieron: la mejora tardía se descarta sin parpadeo
   const ancla = location.hash.length > 1 && location.hash !== '#inicio' && document.getElementById(location.hash.slice(1));
-  if (scrollY > innerHeight*0.5 || ancla){ renderer.dispose(); return; } // la visita ya está más abajo: mover el scroll con el pin sería un salto
+  if (scrollY > innerHeight*0.5 || ancla){ renderer.dispose(); MODO.fija('estatica', 'desplazado'); return; } // la visita ya está más abajo: fijar la etapa sería un salto
   etapa.classList.remove('estatica');
   st = ST.create({trigger:etapa, start:'top top', end:'+=470%', pin:true, anticipatePin:1});
   html.classList.add('con-3d');
   ST.refresh();
   activo = true;
   bucle();
+  MODO.fija('3d');
 }
 mejora();
 } catch(e){
   console.warn('NAVE: la escena 3D falló, se queda la versión estática', e);
-  aEstatica();
+  aEstatica('error');
 }

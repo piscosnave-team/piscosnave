@@ -3,6 +3,30 @@
 window.NAVE_CONFIG = JSON.parse(document.getElementById('nave-config').textContent);
 const PRECIOS = window.NAVE_CONFIG.PRECIOS;
 
+/* ===================== MODO: única escritura de html[data-ready|data-modo|data-motivo] =====================
+   data-ready se escribe una sola vez, cuando se decide el primer modo ('3d' o 'estatica'). data-modo puede pasar de '3d' a
+   'estatica' después (contexto WebGL perdido, fallo en un fotograma) y nunca al revés sin recargar. data-motivo explica la versión
+   estática: reduce, sin-gsap, sin-webgl, sin-modulo, error, desplazado, tiempo, contexto-perdido.
+   El vigilante cubre lo que el módulo no puede contar: que no llegue a arrancar (sin-modulo) o que se quede esperando (tiempo). Su plazo
+   corre desde que carga este script y no depende del evento load, que las propias texturas atascadas retrasarían. */
+window.NAVE_MODO = (function(){
+  const raiz = document.documentElement;
+  const PLAZO = 12000;
+  function fija(modo, motivo){
+    const listo = raiz.hasAttribute('data-ready');
+    if (listo && !(modo === 'estatica' && raiz.getAttribute('data-modo') === '3d')) return false;
+    raiz.setAttribute('data-modo', modo);
+    if (modo === 'estatica') raiz.setAttribute('data-motivo', motivo); else raiz.removeAttribute('data-motivo');
+    if (!listo) raiz.setAttribute('data-ready', '');
+    return true;
+  }
+  /* NAVE_3D lo pone el módulo como primera sentencia: si falta, el módulo (o three.js) no se cargó */
+  const sinModulo = ()=>{ if (!window.NAVE_3D) fija('estatica', 'sin-modulo'); };
+  addEventListener('load', sinModulo);
+  setTimeout(()=>{ if (raiz.hasAttribute('data-ready')) return; sinModulo(); fija('estatica', 'tiempo'); }, PLAZO);
+  return { fija, get listo(){ return raiz.hasAttribute('data-ready'); } };
+})();
+
 /* ===================== ARCOS (hornacinas) ===================== */
 window.NAVE_ARCOS = (function(){
   let n = 0;

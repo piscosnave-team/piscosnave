@@ -14,7 +14,6 @@
  * @see ./helpers/css.js
  */
 import { expect, test } from '@playwright/test';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { checkCssFallbacks } from './helpers/css.js';
 import { indexPage } from './helpers/source.js';
 import { styleBlocks } from './helpers/html.js';
@@ -47,7 +46,6 @@ test.describe('ST-CSSFB CSS fallbacks', () => {
   });
 
   test('every svh / overflow:clip / color-mix / translate use in index.html has a fallback or documented exception', async () => {
-    expectedRed(test, 'E7', 'index.html uses svh, overflow-x:clip, color-mix() and translate: with no fallbacks');
     const css = styleBlocks(indexPage().tokens).map((b) => b.css).join('\n');
     expect(summarize(checkCssFallbacks(css)), 'declarations without a fallback').toEqual([]);
   });

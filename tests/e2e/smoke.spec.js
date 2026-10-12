@@ -2,7 +2,7 @@
  * @spec-handoff
  * @interface Playwright smoke S1, S3, S4, S5, S6 against the page as served (characterization of today's behaviour)
  * @behavior
- *   - S1: 3D stage loads (data-modo=3d via con-3d until E7), 0 pageerror, 0 console error, 0 failed request, 0 HTTP >= 400
+ *   - S1: 3D stage loads (html[data-ready] set once, html[data-modo]=3d with no data-motivo), 0 pageerror, 0 console error, 0 failed request, 0 HTTP >= 400
  *   - S3: PE <-> EU switch updates lang, price, title, storage and every wa.me link; stored region wins on reload;
  *     with no ?region the timezone decides (America/Lima -> PE, Europe/Madrid -> EU)
  *   - S4: picking an edition updates #ctaTexto/#ctaPedido; picking it again resets; #lasTres shows the collection total
@@ -13,7 +13,7 @@
  * @edge-cases
  *   - the WhatsApp number is read from window.NAVE_CONFIG at runtime, never written in a test (owner-gated, TC15)
  *   - S3/S4 double as characterization of owner-gated values: prices and message text must not change in this PR
- *   - mode-aware: after E7 the same specs must pass in static mode (no pin) - helpers handle both
+ *   - mode-aware: the same specs pass in static mode (no pin) - helpers handle both; readiness is html[data-ready] (E7)
  * @see ./helpers/page.js
  * @see ./helpers/scroll.js
  * @see ./helpers/budget.js
@@ -33,7 +33,10 @@ test.describe('S1 smoke: the page loads', () => {
   test('S1 the 3D stage loads with no uncaught errors and no failed requests', async ({ page, errors }) => {
     await openPage(page);
     await waitSettled(page);
-    expect(await getModo(page), 'WebGL must be available (SwiftShader args, TC14): a silent fallback to static must fail loudly').toBe('3d');
+    const root = page.locator('html');
+    await expect(root, 'html[data-ready] is set once the first mode settles (I-39)').toHaveAttribute('data-ready', /.*/);
+    expect(await getModo(page), 'WebGL must be available (SwiftShader args, TC14): a silent fallback to static must fail loudly (data-motivo says why)').toBe('3d');
+    await expect(root).not.toHaveAttribute('data-motivo', /.+/);
     await expect(page.locator('h1')).toHaveText('El alma del Perú en cada gota');
     await expect(page).toHaveTitle(TITLE.pe);
     await expect(page.locator('#inicio')).toHaveCount(1);

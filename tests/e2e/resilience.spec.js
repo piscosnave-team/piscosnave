@@ -15,11 +15,9 @@
  *   - S7h "canvas masked": #escena is hidden and #hCaja (where the WebGL bottles draw) is masked, so the rest of the viewport is compared
  *   - S7b injects the failure through getContext('2d') on non-#escena canvases (canvasTex, after the renderer exists)
  * @see ./age-gate.spec.js
- * @see ./helpers/expected-red.js
  */
 import sharp from 'sharp';
 import { FIXTURE, ORIGIN } from './helpers/constants.js';
-import { expectedRed } from './helpers/expected-red.js';
 import { expect, openPage, test, waNumberOf } from './helpers/page.js';
 import { runIn } from './helpers/projects.js';
 import { waitReady, waitSettled } from './helpers/ready.js';
@@ -118,7 +116,6 @@ async function stubNoWebgl(page) {
 
 test.describe('S7 static layout survives 3D failures', () => {
   test('S7a the vendored three module is aborted: catalogue, prices, picker, CTA and data-ir links work', async ({ page, errors }) => {
-    expectedRed(test, 'E7', 'no .estatica default: with the module gone the 3D layout stays (ed-texto visibility:hidden, empty stage), no hooks (U-01)');
     await page.route(THREE, abort);
     await openPage(page, { wait: false });
     await page.waitForLoadState('load');
@@ -130,7 +127,6 @@ test.describe('S7 static layout survives 3D failures', () => {
   });
 
   test('S7b the scene build throws after the renderer exists: pin killed, static layout, no empty pinned stage (I-01)', async ({ page }) => {
-    expectedRed(test, 'E7', 'the pin is created before the fallible scene build, so a throw leaves a 470% empty pin-spacer and no static layout (I-01)');
     await page.addInitScript(() => {
       const orig = HTMLCanvasElement.prototype.getContext;
       HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
@@ -149,7 +145,6 @@ test.describe('S7 static layout survives 3D failures', () => {
   });
 
   test('S7c WebGL is unavailable: static layout, motivo sin-webgl, no uncaught error', async ({ page, errors }) => {
-    expectedRed(test, 'E7', 'no data-ready/data-modo/data-motivo hooks, and the static path ends with an uncaught `throw new Error` (I-03, I-39)');
     await stubNoWebgl(page);
     await openPage(page, { wait: false });
     await page.waitForLoadState('load');
@@ -159,7 +154,6 @@ test.describe('S7 static layout survives 3D failures', () => {
   });
 
   test('S7c the WebGL context is lost in 3D: within 1 s static, motivo contexto-perdido, no pin', async ({ page }) => {
-    expectedRed(test, 'E7', 'nothing listens to webglcontextlost: the page stays in 3D mode with the pin (I-01)');
     test.setTimeout(120_000);
     await openPage(page);
     await waitSettled(page);
@@ -173,7 +167,6 @@ test.describe('S7 static layout survives 3D failures', () => {
   });
 
   test('S7d the GSAP CDN request is aborted: static layout, motivo sin-gsap, [data-r] text fully opaque', async ({ page, errors }) => {
-    expectedRed(test, 'E7', 'no data-ready/data-modo/data-motivo hooks, and the static path ends with an uncaught `throw new Error` (I-03, I-39)');
     await page.route(CDN, abort);
     await openPage(page, { wait: false });
     await page.waitForLoadState('load');
@@ -305,7 +298,6 @@ async function expectSingleIrBinding(page) {
 
 test.describe('S7f [data-ir] is bound once', () => {
   test('S7f static fallback (module aborted): one scroll call per click, one delegated listener, none on the links', async ({ page }) => {
-    expectedRed(test, 'E7', 'module aborted: [data-ir] has no handler at all (0 scroll calls) and the links are the #inicio placeholder (spec 4.0)');
     await page.addInitScript(installScrollSpy);
     await page.route(THREE, abort);
     await openPage(page, { wait: false });
@@ -317,7 +309,6 @@ test.describe('S7f [data-ir] is bound once', () => {
     test.use({ reducedMotion: 'reduce' });
 
     test('S7f static layout reached by reduced motion: still one binding', async ({ page }) => {
-      expectedRed(test, 'E7', 'estatica() binds a click listener on every [data-ir] element instead of one delegated listener (Sho r1 #6)');
       await page.addInitScript(installScrollSpy);
       await openPage(page, { wait: false });
       await page.waitForLoadState('load');
@@ -326,7 +317,6 @@ test.describe('S7f [data-ir] is bound once', () => {
   });
 
   test('S7f after a 3D -> static rollback (context lost): still one binding', async ({ page }) => {
-    expectedRed(test, 'E7', 'there is no rollback on webglcontextlost, and [data-ir] has a direct listener in 3D mode (Sho r1 #6, I-01)');
     test.setTimeout(120_000);
     await page.addInitScript(installScrollSpy);
     await openPage(page);
@@ -343,7 +333,6 @@ test.describe('S7g static visit', () => {
   test.use({ reducedMotion: 'reduce' });
 
   test('S7g a reduced-motion (static) visit logs no uncaught error and no console error', async ({ page, errors }) => {
-    expectedRed(test, 'E7', 'js/escena.js ends the static path with `throw new Error("Versión estática")`: an uncaught pageerror (I-03)');
     await openPage(page, { wait: false });
     await page.waitForLoadState('load');
     expect(errors.pageErrors, 'uncaught errors').toEqual([]);
@@ -378,7 +367,6 @@ async function diffRatio(a, b, threshold = 0.2) {
 
 test.describe('S7h / I-39 readiness', () => {
   test('S7h in 3D data-ready appears exactly once with data-modo=3d (no data-motivo)', async ({ page }) => {
-    expectedRed(test, 'E7', 'the page exposes no html[data-ready]/data-modo hooks (I-39)');
     test.setTimeout(120_000);
     await page.addInitScript(watchReady);
     await openPage(page);
@@ -394,7 +382,6 @@ test.describe('S7h / I-39 readiness', () => {
     test.use({ reducedMotion: 'reduce' });
 
     test('I-39 on the static path (reduced motion) data-ready appears exactly once with data-modo=estatica, motivo=reduce', async ({ page }) => {
-      expectedRed(test, 'E7', 'the page exposes no html[data-ready]/data-modo/data-motivo hooks (I-39)');
       await page.addInitScript(watchReady);
       await openPage(page);
       await expectStaticHooks(page, 'reduce', 3_000);
@@ -404,7 +391,6 @@ test.describe('S7h / I-39 readiness', () => {
   });
 
   test('I-39 watchdog: a stalled texture request ends in estatica/tiempo (about 8 s) and the late upgrade is discarded', async ({ page }) => {
-    expectedRed(test, 'E7', 'there is no watchdog and no data-ready hook: a stalled texture leaves the page blocked in 3D (I-39, spec 4.0)');
     test.setTimeout(90_000);
     let release;
     const gate = new Promise((resolve) => { release = resolve; });
@@ -422,7 +408,6 @@ test.describe('S7h / I-39 readiness', () => {
   });
 
   test('S7i consent + an edition id in the URL: the page stays estatica/desplazado and the anchor target is in view', async ({ page }) => {
-    expectedRed(test, 'E7', 'the module always pins (no scroll guard), so a deep link opens the 3D stage with the edition hidden (U-01, spec 4.0)');
     test.setTimeout(120_000);
     await page.addInitScript(() => { try { localStorage.setItem('nave-edad', 'si'); } catch (e) { /* blocked */ } });
     await page.goto('/?region=pe#t-donaire');
