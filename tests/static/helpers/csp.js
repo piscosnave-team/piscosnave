@@ -45,8 +45,14 @@ export function checkCsp(tokens, scripts) {
     want('style-src', ["'self'", "'unsafe-inline'"]);
     want('script-src', ["'self'", GSAP_PATH]);
     const script = csp.get('script-src') || [];
-    if (script.includes("'unsafe-inline'")) v.push("script-src must not contain 'unsafe-inline' (b3 uses hashes)");
-    if (script.includes("'unsafe-eval'")) v.push("script-src must not contain 'unsafe-eval'");
+    // default-src is the script fallback; script-src-elem/script-src-attr govern
+    // executable script elements and event handlers when present.
+    for (const directive of ['default-src', 'script-src', 'script-src-elem', 'script-src-attr']) {
+      const sources = csp.get(directive);
+      if (!sources) continue;
+      if (sources.includes("'unsafe-inline'")) v.push(`${directive} must not contain 'unsafe-inline' (b3 uses hashes)`);
+      if (sources.includes("'unsafe-eval'")) v.push(`${directive} must not contain 'unsafe-eval'`);
+    }
     for (const s of script.filter((x) => /^https?:\/\//.test(x))) if (!s.endsWith('/') || new URL(s).pathname === '/') v.push(`script-src host must be path-pinned to a directory, got ${s}`);
     const have = script.filter((x) => x.startsWith("'sha256-")).map((x) => x.slice(1, -1)).sort();
     const need = scripts.filter(isExecutableScript).map((s) => `sha256-${sha256Base64(Buffer.from(s.text, 'utf8'))}`).sort();

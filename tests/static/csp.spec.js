@@ -6,7 +6,7 @@
  *   - default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ + one 'sha256-...' per
  *     executable inline script (import map, head boot script); style-src 'self' 'unsafe-inline'; img-src 'self' data:;
  *     connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'
- *   - no 'unsafe-inline'/'unsafe-eval' in script-src; script hosts path-pinned to a directory
+ *   - no 'unsafe-inline'/'unsafe-eval' in default-src, script-src, script-src-elem or script-src-attr; script hosts path-pinned to a directory
  *   - none of frame-ancestors, report-uri, report-to, sandbox (ignored in meta; Chromium logs an error)
  *   - <meta name="referrer" content="no-referrer"> present
  * @edge-cases
@@ -33,9 +33,13 @@ test.describe('ST-CSP meta policy', () => {
     expect(run(page('window.a=1'))).toEqual([]);
   });
 
-  test('harness: stale hash, unsafe-inline, forbidden directive, wrong position and missing referrer are all flagged', async () => {
+  test('harness: stale hash, unsafe script source, forbidden directive, wrong position and missing referrer are all flagged', async () => {
     expect(run(page('window.a=1', { hash: 'sha256-AAAA' })).join()).toContain('hash set');
     expect(run(page('x').replace("script-src 'self'", "script-src 'unsafe-inline' 'self'")).join()).toContain("'unsafe-inline'");
+    expect(run(page('x').replace("default-src 'self'", "default-src 'self' 'unsafe-inline'")).join()).toContain("default-src must not contain 'unsafe-inline'");
+    expect(run(page('x').replace("default-src 'self'", "default-src 'self' 'unsafe-eval'")).join()).toContain("default-src must not contain 'unsafe-eval'");
+    expect(run(page('x').replace("form-action 'none'", "form-action 'none'; script-src-elem 'self' 'unsafe-inline'")).join()).toContain("script-src-elem must not contain 'unsafe-inline'");
+    expect(run(page('x').replace("form-action 'none'", "form-action 'none'; script-src-attr 'self' 'unsafe-eval'")).join()).toContain("script-src-attr must not contain 'unsafe-eval'");
     expect(run(page('x').replace("object-src 'none'", "object-src 'none'; frame-ancestors 'none'")).join()).toContain('frame-ancestors');
     expect(run(page('x').replace('<meta charset="utf-8">', '<meta charset="utf-8"><meta name="x" content="y">')).join()).toContain('first <head> child');
     expect(run(page('x').replace('<meta name="referrer" content="no-referrer">', '')).join()).toContain('referrer');
