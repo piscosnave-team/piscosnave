@@ -118,7 +118,7 @@ test.describe('S2 age gate: stored consent', () => {
     await page.addInitScript(installGateSampler);
     await openPage(page, { wait: false });
     await page.waitForLoadState('load');
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r)))));
     const seen = await page.evaluate(() => ({ displays: [...window.__gateDisplay], frames: window.__gateFrames }));
     expect(seen.frames, 'the sampler saw the gate on several frames').toBeGreaterThan(2);
     expect(seen.displays, 'every sampled display value').toEqual(['none']);
@@ -131,7 +131,7 @@ test.describe('S2 age gate: stored consent', () => {
     await page.waitForLoadState('load');
     await page.reload();
     await page.waitForLoadState('load');
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r)))));
     const seen = await page.evaluate(() => ({ displays: [...window.__gateDisplay], frames: window.__gateFrames }));
     expect(seen.frames).toBeGreaterThan(2);
     expect(seen.displays).toEqual(['none']);
