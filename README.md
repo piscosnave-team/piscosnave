@@ -108,6 +108,14 @@ El elemento `html` expone el estado de ejecución:
 
 ## Pruebas
 
+Para ejecutar `npm test` o `npm run test:visual` por primera vez, instala Chromium de Playwright después de `npm ci`:
+
+```bash
+npx playwright install chromium
+```
+
+Como alternativa, usa la imagen Docker fijada `mcr.microsoft.com/playwright:v1.63.0-noble` con `docker create --init --ipc=host`, como se muestra para las baselines visuales más abajo.
+
 ```bash
 npm run validate      # Solo pruebas estáticas
 npm test              # Capa estática y pruebas end-to-end
