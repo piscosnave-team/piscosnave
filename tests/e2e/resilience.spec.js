@@ -439,8 +439,12 @@ test.describe('S7h / I-39 readiness', () => {
         const shot = () => page.screenshot({ mask: [page.locator('#hCaja')], maskColor: '#ff00ff', animations: 'disabled', caret: 'hide' });
         await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
         const before = await shot(); // the module is held: this is the pre-upgrade (static default) first viewport
+        await expect(page.locator('html'), 'the held module has not settled a readiness state before the pre-upgrade capture').not.toHaveAttribute('data-ready', /.*/);
+        await expect(page.locator('html'), 'the first capture is the static default before the held module is released').not.toHaveAttribute('data-modo', '3d');
         release();
         await waitSettled(page);
+        await expect(page.locator('html'), 'the released module must produce the 3D after-state, not a watchdog static fallback').toHaveAttribute('data-modo', '3d');
+        await expect(page.locator('html')).toHaveClass(/con-3d/);
         // Settled state reached: stop the page's render loop so the capture (and the browser shutdown below) do not compete with it.
         // Measured here: closing the browser took ~30 s (Playwright's force-kill) with the loop running, ~1 s with it stopped.
         await page.evaluate(() => { window.requestAnimationFrame = () => 0; });
