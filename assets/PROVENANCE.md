@@ -64,3 +64,9 @@ every original-bytes file below has the same SHA-256.
 
 The two derived files are the only re-encoded images. `sharp` writes no EXIF, XMP or ICC unless asked; verified
 with `sharp(...).metadata()` (no `exif`, `icc` or `xmp`) and a chunk scan (only `VP8X`, `ALPH`, `VP8 `).
+
+## Verification for maintainers
+
+Run `node tools/extract-assets.mjs --verify` from the repository root to re-decode the original revision and check
+the original-byte files and derived hero dimensions without writing files. See `tools/extract-assets.mjs` for the
+deliberate write mode and [the repository README](../README.md) for the editing workflow.

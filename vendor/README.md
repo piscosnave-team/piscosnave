@@ -34,6 +34,9 @@ also uses a CSP that permits only the pinned cdnjs GSAP directory, same-origin s
 small executable inline blocks (the import map and age-gate boot script). Run `npm run csp -- --check` to verify
 those CSP hashes after editing either inline block.
 
+To verify the vendored-file rows, run `npm run validate`; the static vendor checksum test compares every tracked
+file under `vendor/` (except this README) with this table and rejects GSAP/ScrollTrigger bytes.
+
 ### Owner-approved GSAP self-hosting only
 
 `node tools/vendor-gsap.mjs --write` downloads the two pinned CDN files into the gitignored `vendor/gsap/`
