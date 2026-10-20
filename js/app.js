@@ -78,6 +78,7 @@ window.NAVE_ARCOS = (function(){
   const tipos = {donaire, sunqu, nii, presencia};
   function montar(el, tipo){
     const id = 'a' + (n++);
+    // This SVG is assembled only from static constants; never pass user-derived data to this HTML sink.
     el.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${tipos[tipo](id)}</svg>`);
     return el.querySelector('svg');
   }

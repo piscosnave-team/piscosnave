@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Owner-approved GSAP self-hosting output (never commit library bytes)
+vendor/gsap/
+
 # Test output
 test-results/
 playwright-report/

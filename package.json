@@ -12,7 +12,8 @@
     "validate": "playwright test --project=static",
     "test": "npm run validate && npm run test:e2e",
     "test:e2e": "playwright test --project=desktop --project=mobile-375 --project=reduced-motion --project=landscape",
-    "test:visual": "playwright test --project=visual --pass-with-no-tests --workers=1"
+    "test:visual": "playwright test --project=visual --pass-with-no-tests --workers=1",
+    "csp": "node tools/csp-hashes.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

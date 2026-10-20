@@ -24,6 +24,23 @@ tests (`tests/static/vendor-checksum.spec.js`) fail if a file changes or is adde
 GSAP and ScrollTrigger stay on the cdnjs CDN (with SRI). Their licence is an open owner question, so no GSAP
 bytes are committed.
 
+| CDN file | Version | SHA-512 SRI |
+|----------|---------|-------------|
+| `gsap.min.js` | GSAP 3.12.5 | `sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==` |
+| `ScrollTrigger.min.js` | GSAP 3.12.5 | `sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5TQr/zAKsthzhuv0hiyUKEiQEQXEynnXCvNTOk50dg==` |
+
+The SRI values were checked against both the cdnjs API and the downloaded CDN bytes on 2026-10-20. `index.html`
+also uses a CSP that permits only the pinned cdnjs GSAP directory, same-origin scripts, and hashes for its two
+small executable inline blocks (the import map and age-gate boot script). Run `npm run csp -- --check` to verify
+those CSP hashes after editing either inline block.
+
+### Owner-approved GSAP self-hosting only
+
+`node tools/vendor-gsap.mjs --write` downloads the two pinned CDN files into the gitignored `vendor/gsap/`
+directory, verifies the values above, and prints the two tag and CSP changes to apply. It is never run in CI and
+commits no GSAP bytes. **Do not run it until the owner has answered the GSAP commercial-use and redistribution
+licence question.**
+
 ## Page images
 
 The images under `assets/img/` are not vendored libraries. They were extracted from the previous inline base64
