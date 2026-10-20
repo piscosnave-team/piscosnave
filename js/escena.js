@@ -57,6 +57,7 @@ if (!renderer){ MODO.fija('estatica', 'sin-webgl'); break inicio; }
 renderer.domElement.addEventListener('webglcontextlost', ev=>{ ev.preventDefault(); aEstatica('contexto-perdido'); });
 /* al girar el móvil con la escena 3D activa se deshace igual que con el contexto perdido (la vuelta a vertical no la restaura: hasta recargar) */
 apaisado.addEventListener('change', ()=>{ if (apaisado.matches && activo) aEstatica('apaisado'); });
+addEventListener('resize', ()=>{ if (apaisado.matches && activo) aEstatica('apaisado'); }); // algunos navegadores no emiten MediaQueryList.change al rotar
 /* al confirmar la edad desaparece el bloqueo de scroll de la puerta: ScrollTrigger recalcula */
 addEventListener('nave:edad-ok', ()=>ST.refresh());
 
