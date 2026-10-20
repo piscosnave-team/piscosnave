@@ -55,7 +55,12 @@ export async function waitSettled(page, { timeout = 15_000 } = {}) {
   // (settled) state is reached on the next frame. Test-only; it changes no page code.
   await page.evaluate(() => {
     window.__naveCalm = 0;
-    if (window.gsap) window.gsap.ticker.lagSmoothing(0);
+    const g = window.gsap;
+    if (!g) return;
+    g.ticker.lagSmoothing(0);
+    g.globalTimeline.getChildren(true, true, false)
+      .filter((t) => t.isActive() && !t.scrollTrigger)
+      .forEach((t) => t.progress(1).pause());
   });
   await page.waitForFunction(
     () => {

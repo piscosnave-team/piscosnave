@@ -192,9 +192,9 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
       });
       expect(await pixelRatio(), 'initial desktop DPR cap').toBeLessThanOrEqual(2);
       await page.setViewportSize({ width: 375, height: 667 });
-      expect(await pixelRatio(), 'narrow portrait uses the mobile DPR cap').toBeLessThanOrEqual(1.5);
+      await expect.poll(pixelRatio, { message: 'narrow portrait uses the mobile DPR cap' }).toBeLessThanOrEqual(1.5);
       await page.setViewportSize({ width: 1280, height: 800 });
-      expect(await pixelRatio(), 'desktop cap is restored after crossing back').toBeLessThanOrEqual(2);
+      await expect.poll(pixelRatio, { message: 'desktop cap is restored after crossing back' }).toBeLessThanOrEqual(2);
     });
   });
 
