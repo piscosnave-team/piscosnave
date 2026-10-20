@@ -40,7 +40,6 @@ test.describe('e2e harness', () => {
 test.describe('axe probe (opt-in)', () => {
   test('AXE_PROBE settled numbers on the page as served', async ({ page }, testInfo) => {
     test.skip(!process.env.AXE_PROBE, 'set AXE_PROBE=1 to print the settled axe numbers');
-    test.setTimeout(300_000); // six axe passes over a software-rendered 3D page
     await openPage(page);
     await waitSettled(page);
     const whole = newViolations(await scanRaw(page), {}, testInfo.project.name);

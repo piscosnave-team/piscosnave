@@ -154,7 +154,6 @@ test.describe('S7 static layout survives 3D failures', () => {
   });
 
   test('S7c the WebGL context is lost in 3D: within 1 s static, motivo contexto-perdido, no pin', async ({ page }) => {
-    test.setTimeout(120_000);
     await openPage(page);
     await waitSettled(page);
     expect(await page.evaluate(() => document.documentElement.classList.contains('con-3d') || document.documentElement.dataset.modo === '3d'), '3D must be running before the context is lost').toBe(true);
@@ -317,7 +316,6 @@ test.describe('S7f [data-ir] is bound once', () => {
   });
 
   test('S7f after a 3D -> static rollback (context lost): still one binding', async ({ page }) => {
-    test.setTimeout(120_000);
     await page.addInitScript(installScrollSpy);
     await openPage(page);
     await waitSettled(page);
@@ -367,7 +365,6 @@ async function diffRatio(a, b, threshold = 0.2) {
 
 test.describe('S7h / I-39 readiness', () => {
   test('S7h in 3D data-ready appears exactly once with data-modo=3d (no data-motivo)', async ({ page }) => {
-    test.setTimeout(120_000);
     await page.addInitScript(watchReady);
     await openPage(page);
     await waitSettled(page);
@@ -391,7 +388,6 @@ test.describe('S7h / I-39 readiness', () => {
   });
 
   test('I-39 watchdog: a stalled texture request ends in estatica/tiempo (about 8 s) and the late upgrade is discarded', async ({ page }) => {
-    test.setTimeout(90_000);
     let release;
     const gate = new Promise((resolve) => { release = resolve; });
     await page.route(TEXTURE, async (route) => { await gate; await route.continue(); });
@@ -408,7 +404,6 @@ test.describe('S7h / I-39 readiness', () => {
   });
 
   test('S7i consent + an edition id in the URL: the page stays estatica/desplazado and the anchor target is in view', async ({ page }) => {
-    test.setTimeout(120_000);
     await page.addInitScript(() => { try { localStorage.setItem('nave-edad', 'si'); } catch (e) { /* blocked */ } });
     await page.goto('/?region=pe#t-donaire');
     await page.waitForLoadState('load');
@@ -425,7 +420,6 @@ test.describe('S7h / I-39 readiness', () => {
   // that backlog (about 8 busy SwiftShader threads) after the page is gone: the next 3D test in the same worker then stalls in
   // browser.newContext or waitSettled (S1 right after this test: 3 of 3 runs). Killing this browser kills its GPU process with it.
   test('S7h the first viewport (.presencia) looks the same before and after the 3D upgrade (canvas area masked)', async ({ playwright }, testInfo) => {
-    test.setTimeout(120_000);
     const use = testInfo.project.use;
     const browser = await playwright.chromium.launch({ args: use.launchOptions?.args });
     try {

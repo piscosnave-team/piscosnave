@@ -243,7 +243,6 @@ test.describe('P1 first-view budget (spec 4.6)', () => {
     runIn(test, 'mobile-375');
 
     test('P1 the first view weighs at most 300 KB (gzip -9 text, raw images, without the 3D library, textures and lazy images)', async ({ page }, testInfo) => {
-      test.setTimeout(120_000);
       const view = trackFirstView(page);
       await openPage(page, { consent: false }); // fresh context, no stored consent: the age gate is part of the first view
       const report = await view.report();
@@ -258,7 +257,6 @@ test.describe('P1 first-view budget (spec 4.6)', () => {
     runIn(test, 'desktop');
 
     test('P1 desktop first-view total is logged, not asserted', async ({ page }, testInfo) => {
-      test.setTimeout(120_000);
       const view = trackFirstView(page);
       await openPage(page, { consent: false });
       const report = await view.report();
