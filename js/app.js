@@ -1,5 +1,7 @@
 /* ===================== CONFIGURACIÓN =====================
-   Los valores editables (WHATSAPP y PRECIOS) viven en el bloque JSON #nave-config de index.html. */
+   Los valores editables (WHATSAPP y PRECIOS) viven en el bloque JSON #nave-config de index.html.
+   Al cambiar WHATSAPP, actualizar también los 5 href predeterminados sin JavaScript en index.html; la prueba estática detecta desajustes.
+   PRECIOS alimenta el texto dinámico, pero también hay 5 copias EUR sin JavaScript y claves de traducción que se editan en conjunto. */
 window.NAVE_CONFIG = JSON.parse(document.getElementById('nave-config').textContent);
 const PRECIOS = window.NAVE_CONFIG.PRECIOS;
 
@@ -27,7 +29,9 @@ window.NAVE_MODO = (function(){
   return { fija, get listo(){ return raiz.hasAttribute('data-ready'); } };
 })();
 
-/* ===================== ARCOS (hornacinas) ===================== */
+/* ===================== ARCOS (hornacinas) =====================
+   Glosario: hornacina/nicho = arco de una botella; presencia = arco del hero. Los hexadecimales de prendas son arte de cada edición,
+   no sustitutos de los tokens de marca de :root en index.html. */
 window.NAVE_ARCOS = (function(){
   let n = 0;
   const W = 400, H = 625, R = 200;
@@ -100,7 +104,8 @@ window.NAVE_ARCOS = (function(){
 
 
 /* ===================== REGIONES: Perú (español, soles) y Unión Europea (inglés, euros) =====================
-   El HTML está escrito en español. Cada región reemplaza los textos que cambian. */
+   El HTML está escrito en español. Cada región reemplaza los textos que cambian. ATENCIÓN: el texto español visible es la clave literal;
+   al editar copia, cambiar la clave correspondiente y su valor en PE, EU y JS según aplique, o la región conserva silenciosamente el original. */
 window.NAVE_REGION = (function(){
   const PE = {
     '750 ml · 40 € · Caja incluida':`750 ml · S/ ${PRECIOS.pe.botella} · Caja incluida`,
@@ -257,7 +262,8 @@ window.NAVE_ELECCION = -1;
 
 /* ===================== Enlaces [data-ir] =====================
    Cada enlace trae un href real (sin JS salta al ancla). Un solo oyente delegado, instalado una vez aquí, decide al hacer
-   clic: en 3D llama a la función que registra el módulo (NAVE_IR.alPin); en la versión estática se desplaza al destino del href. */
+   clic: en 3D llama a la función que registra el módulo (NAVE_IR.alPin); en la versión estática se desplaza al destino del href.
+   Leyenda 3D: 0 = presencia/hero, 1 = inicio de Donaire y 4.75 = selector/pedido al final; los rangos P y la longitud del pin viven en js/escena.js. */
 window.NAVE_IR = { alPin: null };
 document.addEventListener('click', ev=>{
   const a = ev.target.closest && ev.target.closest('[data-ir]');

@@ -68,7 +68,9 @@ addEventListener('resize', ()=>{ if (apaisado.matches && activo) aEstatica('apai
 addEventListener('nave:edad-ok', ()=>ST.refresh());
 
 /* ===================== ETAPA FIJADA =====================
-   P de 0 a 5: 0-1 presencia y apertura del arco de luz, 1-2 Donaire, 2-3 Sunqu, 3-4 Nii, 4-5 las tres juntas. */
+   Leyenda: P va de 0 a FIN (5): 0-1 presencia y apertura del arco de luz, 1-2 Donaire, 2-3 Sunqu, 3-4 Nii, 4-5 las tres juntas.
+   data-ir=0 lleva al hero, 1 al inicio de Donaire y 4.75 al selector/pedido dentro del último segmento. El pin mide +=470%:
+   cinco segmentos narrativos dentro de un recorrido algo menor que cinco alturas de viewport; cambiar FIN, rangos, data-ir o el pin exige revisarlos juntos. */
 const FIN = 5;
 const P = ()=> st.progress*FIN;
 /* el oyente delegado de [data-ir] (js/app.js) llama a esta función mientras la escena está en 3D */
@@ -401,6 +403,7 @@ function mejora(){
   if (apaisado.matches){ renderer.dispose(); MODO.fija('estatica', 'apaisado'); return; } // el móvil se giró mientras cargaban las texturas
   if (scrollY > innerHeight*0.5 || ancla){ renderer.dispose(); MODO.fija('estatica', 'desplazado'); return; } // la visita ya está más abajo: fijar la etapa sería un salto
   etapa.classList.remove('estatica');
+  // Longitud del pin: véase la leyenda de ETAPA FIJADA; no cambiarla sin revisar los rangos P y los enlaces data-ir.
   st = ST.create({trigger:etapa, start:'top top', end:'+=470%', pin:true, anticipatePin:1});
   html.classList.add('con-3d');
   ST.refresh();

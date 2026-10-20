@@ -68,7 +68,10 @@
 <style>
 /* NAVE · manual V02. Paleta 70 % blanco cálido, 20 % granate, 10 % rosa. Arial; el carácter lo pone el logo.
    Sistema propio: la hornacina (arco). Cada edición vive en su arco, con la dirección visual del manual:
-   Costa = pliegue y acento rojo con movimiento lateral; Sierra = tejido; Selva = capas que se revelan. */
+   Costa = pliegue y acento rojo con movimiento lateral; Sierra = tejido; Selva = capas que se revelan.
+   Glosario: etapa = escena fijada; hornacina/nicho = arco de una botella; presencia = hero; luz = transición del arco;
+   ed-texto = texto de edición; trío/slot = selector de las tres botellas; rótulo = etiqueta en mayúsculas; edad = puerta de acceso.
+   Los tokens de marca están en :root; los colores de cada prenda/ilustración se definen aparte en js/app.js y js/escena.js. */
 :root{
   --granate:#572333;
   --granate-hondo:#3f1824;
@@ -315,7 +318,15 @@ html:has(:target) .edad{display:none}
 </style></noscript>
 </head>
 <body>
+<!-- MAPA DE EDICIÓN (solo referencias; conservar la estructura y los IDs):
+     Copia: las secciones .etapa, .marca, .manifiesto-sec, .cierre y .pie. El español visible es la clave exacta de PE/EU/JS en js/app.js:
+     al cambiarlo, actualiza la clave y su traducción en los tres diccionarios o la región conservará el original sin avisar.
+     Precios: #nave-config > PRECIOS es la fuente; actualiza también las 5 copias EUR sin JavaScript y sus claves PE/EU/JS.
+     WhatsApp: #nave-config > WHATSAPP alimenta js/app.js; cambiarlo exige actualizar los 5 href predeterminados sin JavaScript y su prueba estática.
+     Legal: los paneles #aviso y #privacidad, más sus claves PE/EU, se editan juntos. Imágenes: rutas assets/img/**; datos 3D #modelos y #texturas se consumen en js/escena.js.
+     Los bloques ejecutables en línea son el script de puerta de edad del <head> y el import map: no cambies sus bytes sin ejecutar npm run csp y npm run csp -- --check. -->
 
+<!-- Sprite SVG: #logo-nave, #iso-nv e iconos reutilizados por cabecera, puerta y pie. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <g id="logo-nave"><path fill-rule="evenodd" d="M 80 161.914062 L 123.375 161.914062 L 169.457031 347.15625 L 169.457031 178.179688 L 158.613281 161.914062 L 192.953125 161.914062 L 182.109375 178.179688 L 182.109375 433 L 155.902344 433 L 103.492188 232.398438 L 103.492188 416.734375 L 114.335938 433 L 80 433 L 90.84375 416.734375 L 90.84375 178.179688 Z"/><path fill-rule="evenodd" d="M 209.21875 161.914062 L 251.6875 161.914062 L 289.636719 416.734375 L 300.480469 433 L 248.976562 433 L 259.820312 416.734375 L 251.6875 370.652344 L 223.675781 388.722656 L 220.964844 416.734375 L 232.710938 433 L 188.433594 433 L 200.179688 416.734375 L 221.867188 178.179688 Z M 227.289062 361.613281 L 248.070312 347.15625 L 237.230469 248.664062 Z"/><path fill-rule="evenodd" d="M 292.347656 161.914062 L 346.566406 161.914062 L 335.722656 178.179688 L 360.121094 376.976562 L 380.902344 178.179688 L 369.15625 161.914062 L 411.625 161.914062 L 399.878906 178.179688 L 367.347656 433 L 340.242188 433 L 304.097656 178.179688 Z"/><path fill-rule="evenodd" d="M 413.433594 161.914062 L 524.578125 161.914062 L 514.636719 211.613281 L 501.085938 181.796875 L 454.097656 181.796875 L 454.097656 288.421875 L 482.109375 266.734375 L 482.109375 326.375 L 454.097656 306.492188 L 454.097656 413.121094 L 501.085938 413.121094 L 517.347656 382.398438 L 530 433 L 413.433594 433 L 425.179688 416.734375 L 425.179688 178.179688 Z"/></g>
   <g id="iso-nv"><path fill-rule="evenodd" d="M 149.652344 174 L 179.734375 174 L 211.699219 279.804688 L 211.699219 183.289062 L 204.179688 174 L 227.992188 174 L 220.472656 183.289062 L 220.472656 328.835938 L 202.296875 328.835938 L 165.949219 214.257812 L 165.949219 319.546875 L 173.46875 328.835938 L 149.652344 328.835938 L 157.175781 319.546875 L 157.175781 183.289062 Z"/><path fill-rule="evenodd" d="M 115 289.019531 L 156.289062 289.019531 L 148.179688 302.292969 L 188.730469 390.769531 L 230.019531 302.292969 L 221.910156 289.019531 L 262.460938 289.019531 L 250.664062 303.765625 L 197.578125 421 L 179.144531 421 L 126.796875 303.765625 Z"/></g>
@@ -323,6 +334,7 @@ html:has(:target) .edad{display:none}
   <g id="icono-flecha"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
 </defs></svg>
 
+<!-- Puerta de edad: visible sin JavaScript; #edad-pasa es la confirmación declarativa para <noscript>. -->
 <span id="edad-pasa"></span>
 <div class="edad" id="edad" role="dialog" aria-modal="true" aria-labelledby="edad-t">
   <div class="edad-caja">
@@ -335,8 +347,10 @@ html:has(:target) .edad{display:none}
   </div>
 </div>
 
+<!-- Lienzo 3D decorativo; la página empieza en diseño estático y js/escena.js la mejora solo si puede. -->
 <canvas id="escena" aria-hidden="true"></canvas>
 
+<!-- Cabecera, navegación de anclas y selector regional. data-ir se explica en js/app.js y js/escena.js. -->
 <header class="cabecera">
   <a class="sr salto" href="#contenido">Saltar al contenido</a><a class="sr salto" href="#trioArcos">Ir al pedido</a>
   <div class="wrap">
@@ -350,6 +364,7 @@ html:has(:target) .edad{display:none}
   </div>
 </header>
 
+<!-- Contenido principal: .etapa contiene hero, ediciones y selector; las secciones posteriores son marca, manifiesto y cierre. -->
 <main id="contenido" tabindex="-1">
   <section class="etapa estatica" id="inicio" aria-label="NAVE Pisco Premium">
     <div class="presencia">
@@ -435,6 +450,7 @@ html:has(:target) .edad{display:none}
     <p class="arrastra" id="arrastra" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Arrastra la botella para girarla</p>
   </section>
 
+  <!-- Historia y ficha de marca. -->
   <section class="marca" id="marca">
     <div class="wrap">
       <p class="rotulo" data-r>Nuestra historia</p>
@@ -469,6 +485,7 @@ html:has(:target) .edad{display:none}
     </div>
   </section>
 
+  <!-- Manifiesto. -->
   <section class="manifiesto-sec" aria-label="Manifiesto">
     <div class="wrap">
       <ol class="manifiesto" id="manifiesto">
@@ -482,6 +499,7 @@ html:has(:target) .edad{display:none}
     </div>
   </section>
 
+  <!-- Cierre de la colección. -->
   <section class="cierre">
     <div class="wrap">
       <h2 data-r>Hecho en Ica. Vestido a mano.</h2>
@@ -490,6 +508,7 @@ html:has(:target) .edad{display:none}
   </section>
 </main>
 
+<!-- Pie: navegación, paneles legales y aviso de consumo. -->
 <footer class="pie">
   <div class="wrap pie-marca">
     <svg class="logo" viewBox="78 159.91 454 275.09" role="img" aria-label="NAVE"><use href="#logo-nave"/></svg>
@@ -527,6 +546,7 @@ html:has(:target) .edad{display:none}
 
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5TQr/zAKsthzhuv0hiyUKEiQEQXEynnXCvNTOk50dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Import map ejecutable con hash CSP: si se edita, regenerar y comprobar CSP (ver mapa de edición). -->
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 
 <!-- ===================== CONFIGURACIÓN =====================
