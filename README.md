@@ -5,7 +5,7 @@ Sitio estático de una sola página para presentar las ediciones Donaire, Sunqu 
 ## Sitio en producción y publicación
 
 - URL pública: <https://omnix-afk.github.io/piscosnave/>.
-- GitHub Pages publica desde la rama `main`, en la raíz del repositorio. `.nojekyll` evita el procesamiento de Jekyll.
+- GitHub Pages usa el build legacy desde la rama `main`, en la raíz del repositorio. `.nojekyll` evita el procesamiento de Jekyll.
 - Esta configuración de Pages es la actual; el workflow no publica el sitio. Ver [CI](#ci).
 - `robots.txt` y `sitemap.xml` están incluidos, pero los crawlers ignoran `robots.txt` en la ruta de proyecto `/piscosnave/`. Solo se aplicará como se espera cuando exista un dominio propio.
 
@@ -155,7 +155,7 @@ También se puede sustituir `--ipc=host` por `--shm-size=1g`. Estos ajustes evit
 Revisar las preguntas del PR antes de hacer merge. En especial, faltan decisiones sobre placeholders legales, advertencia peruana de alcohol, precios, licencia de GSAP, licencia del repositorio y número de WhatsApp Business.
 
 - [ ] Confirmar el texto, tamaño y ubicación del aviso peruano sobre alcohol.
-- [ ] Completar los placeholders legales con datos del negocio, no personales.
+- [ ] Completar los placeholders legales (`[Nombre o razón social]`, `[NIF]`/`[RUC]`, `[Dirección]` y `[correo electrónico]`) con datos del negocio, no personales.
 - [ ] Confirmar precios y números de WhatsApp Business por mercado.
 - [ ] Decidir la licencia de GSAP, su posible self-hosting y la licencia del repositorio.
 - [ ] Configurar un dominio propio; entonces actualizar la URL base y revisar robots/sitemap/canonical/OG.
