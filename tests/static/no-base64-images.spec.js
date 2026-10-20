@@ -11,7 +11,6 @@
  * @see ../../.yui-soul/reviews/341-piscosnave-review-340-remediation/spec.md (4.5)
  */
 import { expect, test } from '@playwright/test';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { elements } from './helpers/html.js';
 import { codeSources, indexPage } from './helpers/source.js';
 
@@ -44,7 +43,6 @@ test.describe('ST-B64 inline image payloads', () => {
   });
 
   test('no data:image URIs at all (favicon replaced by static files)', async () => {
-    expectedRed(test, 'E12', 'the favicon is still a data:image/svg+xml link; E12 replaces it with assets/icons/*');
     const total = allText().reduce((n, s) => n + count(RASTER, s.text) + count(SVG, s.text), 0);
     expect(total, 'data:image/* URIs remaining').toBe(0);
   });

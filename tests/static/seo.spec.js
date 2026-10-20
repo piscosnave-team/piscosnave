@@ -14,7 +14,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import sharp from 'sharp';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { elements, inlineScripts } from './helpers/html.js';
 import { indexPage, ROOT } from './helpers/source.js';
 
@@ -59,7 +58,6 @@ test.describe('ST-SEO head metadata and static assets', () => {
   });
 
   test('share metadata reuses the existing title and description and pins all SEO URLs to the package homepage', async () => {
-    expectedRed(test, 'E12', 'the head has no Open Graph, Twitter-card, or canonical metadata');
     const title = indexPage().tokens.find((element) => element.type === 'text' && element.ancestors.at(-1) === 'title')?.text;
     const description = meta('name', 'description')?.attrs.content;
     const ogImage = `${BASE_URL}${OG_IMAGE_PATH}`;
@@ -85,7 +83,6 @@ test.describe('ST-SEO head metadata and static assets', () => {
   });
 
   test('the static SVG, PNG fallback, and Apple-touch icon replace the favicon data URI', async () => {
-    expectedRed(test, 'E12', 'the head still links its favicon through a data:image SVG instead of assets/icons/*');
     expect(link('icon', 'assets/icons/favicon.svg')?.attrs.type).toBe('image/svg+xml');
     expect(link('icon', 'assets/icons/favicon-32x32.png')).toMatchObject({ attrs: { sizes: '32x32', type: 'image/png' } });
     expect(link('apple-touch-icon', 'assets/icons/apple-touch-icon.png')).toMatchObject({ attrs: { sizes: '180x180' } });
@@ -98,7 +95,6 @@ test.describe('ST-SEO head metadata and static assets', () => {
   });
 
   test('Organization JSON-LD is parseable, base-URL scoped, and excludes owner-gated identity and price data', async () => {
-    expectedRed(test, 'E12', 'the head has no application/ld+json Organization data block');
     const block = inlineScripts(indexPage().tokens).find((script) => script.type === 'application/ld+json');
     expect(block, 'one JSON-LD data block').toBeTruthy();
     const jsonLd = JSON.parse(block.text);
