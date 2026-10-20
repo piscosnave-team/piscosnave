@@ -126,6 +126,15 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
     });
   });
 
+  test('P3 a lost WebGL context marks the render loop paused', async ({ playwright }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'desktop 3D lifecycle probe');
+    expectedRed(test, 'E11', 'context loss stops the current loop internally but does not expose data-bucle=pausado');
+    await withScene(playwright, testInfo, async () => {}, async (page) => {
+      await page.locator('#escena').dispatchEvent('webglcontextlost');
+      await expect(page.locator('html')).toHaveAttribute('data-bucle', 'pausado');
+    });
+  });
+
   test('P4 renderer DPR is capped at 1.5 on mobile and 2 on desktop', async ({ playwright }, testInfo) => {
     test.skip(!['desktop', 'mobile-375'].includes(testInfo.project.name), 'DPR probe');
     if (testInfo.project.name === 'mobile-375') expectedRed(test, 'E11', 'mobile renderer.setPixelRatio currently permits 1.75');
