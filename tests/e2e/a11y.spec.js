@@ -18,6 +18,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { AXE_TAGS, loadBaseline, newViolations, scanEach, scanPage, scanSections } from './helpers/axe.js';
 import { expect, openPage, test as base } from './helpers/page.js';
+import { expectedRed } from './helpers/expected-red.js';
 import { runIn } from './helpers/projects.js';
 import { getModo, waitSettled } from './helpers/ready.js';
 import { pinRange, scrollToY } from './helpers/scroll.js';
@@ -287,6 +288,46 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
       else if (facts.problems.length) problems.push(`${key}: ${facts.problems.join('; ')}`);
     }
     expect(problems, 'focus() did not bring the segment on screen').toEqual([]);
+  });
+
+  test('K2 a missed pointer release cannot suppress a later Tab jump to another segment', async ({ page }) => {
+    expectedRed(test, 'E15', 'the pointer guard remains true forever when pointerup is missed, so genuine Tab focus does not jump segments');
+    const pin = await open3d(page);
+    await scrollToP(page, pin, 0);
+    await page.mouse.move(8, 8);
+    await page.mouse.down(); // deliberately no pointerup: equivalent to releasing outside the window
+    const toSlot = await tabTo(page, KEYS['slot-sunqu']);
+    expect(toSlot.found, `Tab reaches the control after the missed release. Trail: ${toSlot.trail.join(' > ')}`).toBe(true);
+    const facts = await onScreenAfterFrames(page);
+    expect(facts.problems, 'Tab focus after a missed pointer release scrolls the Sunqu segment into view').toEqual([]);
+    await page.mouse.up().catch(() => {});
+  });
+
+  test('K2 a Tab jump immediately after a normal pointer release is not held for 500 ms', async ({ page }) => {
+    expectedRed(test, 'E15', 'the pointerup cooldown suppresses genuine keyboard focus for 500 ms');
+    const pin = await open3d(page);
+    await scrollToP(page, pin, 0);
+    await page.mouse.move(8, 8);
+    await page.mouse.down();
+    await page.mouse.up();
+    const toSlot = await tabTo(page, KEYS['slot-sunqu']);
+    expect(toSlot.found, `Tab reaches the control after pointerup. Trail: ${toSlot.trail.join(' > ')}`).toBe(true);
+    const facts = await onScreenAfterFrames(page);
+    expect(facts.problems, 'Tab focus immediately after pointerup scrolls the Sunqu segment into view').toEqual([]);
+  });
+
+  test('K2 focus caused by an in-progress mouse press does not jump segments before release', async ({ page }) => {
+    const pin = await open3d(page);
+    await scrollToP(page, pin, 0);
+    const before = await page.evaluate(() => scrollY);
+    await page.mouse.move(8, 8);
+    await page.mouse.down();
+    try {
+      await page.evaluate((sel) => document.querySelector(sel).focus({ preventScroll: true }), KEYS['slot-sunqu']);
+      expect(await page.evaluate(() => scrollY), 'focus from the active pointer interaction does not jump the pinned stage').toBe(before);
+    } finally {
+      await page.mouse.up();
+    }
   });
 
   test('K3 Enter on the Sunqu slot picks it, Enter on #ctaPedido opens the wa.me chat with the edition (keyboard order path)', async ({ page }) => {

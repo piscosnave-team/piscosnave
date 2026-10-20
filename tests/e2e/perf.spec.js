@@ -11,6 +11,7 @@
  * @see ../../js/escena.js
  */
 import { expect, test } from './helpers/page.js';
+import { expectedRed } from './helpers/expected-red.js';
 import { FIXTURE } from './helpers/constants.js';
 import { waitSettled } from './helpers/ready.js';
 
@@ -165,6 +166,24 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
         return canvas.width / canvas.getBoundingClientRect().width;
       });
       expect(pixelRatio).toBeLessThanOrEqual(testInfo.project.name === 'mobile-375' ? 1.5 : 2);
+    });
+  });
+
+  test('P4 crossing desktop and narrow portrait breakpoints reapplies the renderer DPR cap', async ({ playwright }, testInfo) => {
+    expectedRed(test, 'E15', 'escena.js only applies the mobile DPR cap during renderer construction, not resize');
+    test.skip(testInfo.project.name !== 'desktop', 'desktop resize probe');
+    await withScene(playwright, testInfo, async () => {
+      Object.defineProperty(window, 'devicePixelRatio', { configurable: true, get: () => 2 });
+    }, async (page) => {
+      const pixelRatio = () => page.evaluate(() => {
+        const canvas = document.getElementById('escena');
+        return canvas.width / canvas.getBoundingClientRect().width;
+      });
+      expect(await pixelRatio(), 'initial desktop DPR cap').toBeLessThanOrEqual(2);
+      await page.setViewportSize({ width: 375, height: 667 });
+      expect(await pixelRatio(), 'narrow portrait uses the mobile DPR cap').toBeLessThanOrEqual(1.5);
+      await page.setViewportSize({ width: 1280, height: 800 });
+      expect(await pixelRatio(), 'desktop cap is restored after crossing back').toBeLessThanOrEqual(2);
     });
   });
 
