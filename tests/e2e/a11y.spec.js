@@ -291,7 +291,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   });
 
   test('K2 a missed pointer release cannot suppress a later Tab jump to another segment', async ({ page }) => {
-    expectedRed(test, 'E15', 'the pointer guard remains true forever when pointerup is missed, so genuine Tab focus does not jump segments');
     const pin = await open3d(page);
     await scrollToP(page, pin, 0);
     await page.mouse.move(8, 8);
@@ -304,7 +303,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   });
 
   test('K2 a Tab jump immediately after a normal pointer release is not held for 500 ms', async ({ page }) => {
-    expectedRed(test, 'E15', 'the pointerup cooldown suppresses genuine keyboard focus for 500 ms');
     const pin = await open3d(page);
     await scrollToP(page, pin, 0);
     await page.mouse.move(8, 8);

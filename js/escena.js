@@ -93,11 +93,15 @@ function irAlSegmento(el){
   const v = segmentoDe(el);
   if (v !== null) scrollTo({top: st.start + (st.end - st.start)*(v/FIN), behavior: 'instant'});
 }
-let puntero = false, sueltaPuntero = 0;
-addEventListener('pointerdown', ()=>{ puntero = true; clearTimeout(sueltaPuntero); }, true);
-const alSoltar = ()=>{ sueltaPuntero = setTimeout(()=>{ puntero = false; }, 500); };
-addEventListener('pointerup', alSoltar, true); addEventListener('pointercancel', alSoltar, true);
-etapa.addEventListener('focusin', ev=>{ if (!puntero) irAlSegmento(ev.target); });
+let puntero = false, teclado = false;
+const sueltaPuntero = ()=>{ puntero = false; };
+addEventListener('pointerdown', ()=>{ puntero = true; teclado = false; }, true);
+addEventListener('pointerup', sueltaPuntero, true); addEventListener('pointercancel', sueltaPuntero, true);
+addEventListener('keydown', ()=>{ teclado = true; sueltaPuntero(); }, true);
+addEventListener('blur', sueltaPuntero, true);
+addEventListener('lostpointercapture', sueltaPuntero, true);
+document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState !== 'visible') sueltaPuntero(); });
+etapa.addEventListener('focusin', ev=>{ if (!puntero || teclado) irAlSegmento(ev.target); });
 /* «Ir al pedido»: el ancla nativa no llega al último paso de la etapa fijada; se enfoca el primer botón y se va a su segmento */
 document.querySelector('.salto[href="#trioArcos"]').addEventListener('click', ev=>{
   if (!st) return;
