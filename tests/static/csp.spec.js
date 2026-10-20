@@ -15,7 +15,6 @@
  * @see ./helpers/csp.js
  */
 import { expect, test } from '@playwright/test';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { checkCsp } from './helpers/csp.js';
 import { inlineScripts, tokenize } from './helpers/html.js';
 import { indexPage, sha256Base64 } from './helpers/source.js';
@@ -45,13 +44,11 @@ test.describe('ST-CSP meta policy', () => {
   });
 
   test('index.html carries the agreed CSP and referrer policy', async () => {
-    expectedRed(test, 'E10', 'index.html has no CSP meta and no referrer meta yet');
     const { tokens, scripts } = indexPage();
     expect(checkCsp(tokens, scripts), 'CSP violations').toEqual([]);
   });
 
   test('the CSP hash set follows the exact current inline executable-script bytes', async () => {
-    expectedRed(test, 'E10', 'there is no CSP meta whose two sha256 sources can protect the current boot and import-map blocks');
     const { tokens, scripts } = indexPage();
     const csp = tokens.find((t) => t.type === 'start' && t.name === 'meta' && String(t.attrs['http-equiv']).toLowerCase() === 'content-security-policy');
     const actual = new Set((String(csp?.attrs.content || '').match(/'sha256-[^']+'/g) || []).map((hash) => hash.slice(1, -1)));

@@ -10,7 +10,6 @@
  * @see ../../.yui-soul/reviews/341-piscosnave-review-340-remediation/spec.md (4.7)
  */
 import { expect, test } from '@playwright/test';
-import { expectedRed } from './helpers/expected-red.js';
 import { ORIGIN } from './helpers/constants.js';
 import { waitReady, waitSettled } from './helpers/ready.js';
 import { runIn } from './helpers/projects.js';
@@ -54,7 +53,6 @@ async function assertCspClean(page, consoleErrors) {
 
 test.describe('H1 CSP browser enforcement', () => {
   test('the CSP keeps 3D, static, reduced-motion, landscape, age-gate, region-switch and no-JS paths console-clean', async ({ playwright }, testInfo) => {
-    expectedRed(test, 'E10', 'the served page has no CSP meta, so a browser cannot enforce or validate the chosen policy');
     const use = testInfo.project.use;
     const browser = await playwright.chromium.launch({ args: use.launchOptions?.args });
     try {
@@ -111,7 +109,6 @@ test.describe('H2/H3 SRI and CDN failures fail safely', () => {
     { name: 'a blocked CDN response', route: async (route) => route.abort() },
   ]) {
     test(`${scenario.name} leaves the static catalogue and order CTA usable`, async ({ playwright }, testInfo) => {
-      expectedRed(test, 'E10', 'without SRI, tampered GSAP bytes execute or a CDN failure is not proven to be an integrity-safe fallback');
       const use = testInfo.project.use;
       const browser = await playwright.chromium.launch({ args: use.launchOptions?.args });
       try {

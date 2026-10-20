@@ -12,7 +12,6 @@
  * @see ../../.yui-soul/reviews/341-piscosnave-review-340-remediation/spec.md (4.7)
  */
 import { expect, test } from '@playwright/test';
-import { expectedRed } from '../e2e/helpers/expected-red.js';
 import { tokenize } from './helpers/html.js';
 import { indexPage } from './helpers/source.js';
 
@@ -56,12 +55,10 @@ test.describe('ST-SRI subresource integrity guard', () => {
   });
 
   test('every external script/stylesheet in index.html has integrity and crossorigin="anonymous"', async () => {
-    expectedRed(test, 'E10', 'the two GSAP <script> tags have no integrity/crossorigin yet');
     expect(sriViolations(indexPage().tokens), 'SRI violations').toEqual([]);
   });
 
   test('the GSAP SRI values equal the pinned cdnjs-byte fixtures verified by Ei F-01', async () => {
-    expectedRed(test, 'E10', 'the GSAP tags have no integrity values to match the independently byte-verified cdnjs fixtures');
     const actual = new Map(
       indexPage().tokens
         .filter((t) => t.type === 'start' && t.name === 'script' && PINNED_GSAP_SRI.has(t.attrs.src))
