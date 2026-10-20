@@ -19,6 +19,10 @@ import { indexPage } from './helpers/source.js';
 const EXTERNAL = /^(?:https?:)?\/\//i;
 const CODE_REL = /\b(stylesheet|modulepreload|preload)\b/i;
 const SHA = { sha384: 64, sha512: 88 };
+const PINNED_GSAP_SRI = new Map([
+  ['https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', 'sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg=='],
+  ['https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', 'sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5TQr/zAKsthzhuv0hiyUKEiQEQXEynnXCvNTOk50dg=='],
+]);
 
 function sriViolations(tokens) {
   const v = [];
@@ -54,5 +58,15 @@ test.describe('ST-SRI subresource integrity guard', () => {
   test('every external script/stylesheet in index.html has integrity and crossorigin="anonymous"', async () => {
     expectedRed(test, 'E10', 'the two GSAP <script> tags have no integrity/crossorigin yet');
     expect(sriViolations(indexPage().tokens), 'SRI violations').toEqual([]);
+  });
+
+  test('the GSAP SRI values equal the pinned cdnjs-byte fixtures verified by Ei F-01', async () => {
+    expectedRed(test, 'E10', 'the GSAP tags have no integrity values to match the independently byte-verified cdnjs fixtures');
+    const actual = new Map(
+      indexPage().tokens
+        .filter((t) => t.type === 'start' && t.name === 'script' && PINNED_GSAP_SRI.has(t.attrs.src))
+        .map((t) => [t.attrs.src, t.attrs.integrity]),
+    );
+    expect(actual).toEqual(PINNED_GSAP_SRI);
   });
 });

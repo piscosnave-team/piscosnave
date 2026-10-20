@@ -49,4 +49,14 @@ test.describe('ST-CSP meta policy', () => {
     const { tokens, scripts } = indexPage();
     expect(checkCsp(tokens, scripts), 'CSP violations').toEqual([]);
   });
+
+  test('the CSP hash set follows the exact current inline executable-script bytes', async () => {
+    expectedRed(test, 'E10', 'there is no CSP meta whose two sha256 sources can protect the current boot and import-map blocks');
+    const { tokens, scripts } = indexPage();
+    const csp = tokens.find((t) => t.type === 'start' && t.name === 'meta' && String(t.attrs['http-equiv']).toLowerCase() === 'content-security-policy');
+    const actual = new Set((String(csp?.attrs.content || '').match(/'sha256-[^']+'/g) || []).map((hash) => hash.slice(1, -1)));
+    const expected = new Set(scripts.filter((script) => script.type !== 'application/json').map((script) => `sha256-${sha256Base64(Buffer.from(script.text, 'utf8'))}`));
+    expect(actual).toEqual(expected);
+  });
+
 });
