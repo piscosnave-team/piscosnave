@@ -62,7 +62,6 @@ const throttleFrames = () => {
 
 /** Freezes every requestAnimationFrame callback for the capture itself: the DOM is already settled, so nothing may move. */
 const idleLoop = (page) => page.evaluate(() => new Promise((r) => { window.__rafGap = 1e9; setTimeout(r, 300); }));
-const wakeLoop = (page) => page.evaluate(() => { window.__rafGap = 80; });
 
 /** Page-coordinate rectangle covering all the given selectors (for a screenshot clip). */
 async function regionOf(page, selectors) {
@@ -116,42 +115,54 @@ const settled3dSuite = (label, env) => {
   test.describe(`settled 3D page, ${label}`, () => {
     test.use({ ...env, reducedMotion: 'no-preference' });
 
-    test(`3D stage: hero, mid-pin edition, order widget, Sunqu picked (${label})`, async ({ page }) => {
-      test.setTimeout(600_000);
+    /** Each test gets its own 3D page fixture: it stops rAF and closes its own Chromium in that fixture's finally block. */
+    const prepare = async (page) => {
       await page.addInitScript(throttleFrames);
       await openPage(page);
       await waitSettled(page);
       const pin = await pinRange(page);
       expect(pin, 'the 3D pin exists (WebGL must be available, SwiftShader args)').not.toBeNull();
-      const at = (progress) => Math.round(pin.start + ((pin.end - pin.start) * progress) / 5);
-      // the render loop keeps the software-GL main thread busy: each capture needs far more than the default 5 s
-      const shoot = { style: HIDE_CANVAS, mask: [page.locator('.desliza')], timeout: 120_000 };
-      const heroShoot = { ...shoot, mask: [...shoot.mask, page.locator('.h-respaldo')] };
-      // masked: .desliza everywhere (endless scroll-hint tween); .h-respaldo in the hero shot only (the ghosted fallback photo
-      // is re-filtered by Chromium while the 3D intro transform settles, so it differs run to run; it is compared pixel-for-pixel
-      // in the static suite, and later shots need it visible because it sits under the trio)
+      return pin;
+    };
 
+    // Screenshot assertions intentionally inherit Playwright config's 5 s expect timeout.
+    const shoot = (page) => ({ style: HIDE_CANVAS, mask: [page.locator('.desliza')] });
+
+    test(`3D stage: hero (${label})`, async ({ page }) => {
+      await prepare(page);
+      const options = shoot(page);
+      const heroShoot = { ...options, mask: [...options.mask, page.locator('.h-respaldo')] };
+      // masked: .desliza (endless scroll-hint tween); .h-respaldo in the hero only (its intro transform is non-deterministic)
       await idleLoop(page);
       await expect.soft(page).toHaveScreenshot(`3d-${label}-hero.png`, heroShoot);
-      await wakeLoop(page);
+    });
 
+    test(`3D stage: mid-pin edition (${label})`, async ({ page }) => {
+      const pin = await prepare(page);
+      const at = (progress) => Math.round(pin.start + ((pin.end - pin.start) * progress) / 5);
       await scrollToY(page, at(2.5));
       await idleLoop(page);
-      await expect.soft(page).toHaveScreenshot(`3d-${label}-edition.png`, shoot);
-      await wakeLoop(page);
+      await expect.soft(page).toHaveScreenshot(`3d-${label}-edition.png`, shoot(page));
+    });
 
+    test(`3D stage: order widget (${label})`, async ({ page }) => {
+      const pin = await prepare(page);
       await scrollToY(page, pin.end - 50);
       await page.waitForFunction(() => getComputedStyle(document.getElementById('trioArcos')).visibility === 'visible');
       await waitSettled(page);
       await idleLoop(page);
-      await expect.soft(page).toHaveScreenshot(`3d-${label}-order.png`, shoot);
-      await wakeLoop(page);
+      await expect.soft(page).toHaveScreenshot(`3d-${label}-order.png`, shoot(page));
+    });
 
+    test(`3D stage: order widget with Sunqu picked (${label})`, async ({ page }) => {
+      const pin = await prepare(page);
+      await scrollToY(page, pin.end - 50);
+      await page.waitForFunction(() => getComputedStyle(document.getElementById('trioArcos')).visibility === 'visible');
+      await waitSettled(page);
       await page.locator('#trioArcos .slot[data-ed="Sunqu"]').click();
       await expect(page.locator('#ctaTexto')).toHaveText('Pedir Sunqu por WhatsApp');
-      await waitSettled(page);
       await idleLoop(page);
-      await expect.soft(page).toHaveScreenshot(`3d-${label}-order-sunqu.png`, shoot);
+      await expect.soft(page).toHaveScreenshot(`3d-${label}-order-sunqu.png`, shoot(page));
     });
   });
 };
