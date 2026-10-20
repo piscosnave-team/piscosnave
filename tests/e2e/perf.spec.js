@@ -54,7 +54,8 @@ function installFrameProbe() {
   const originalRect = Element.prototype.getBoundingClientRect;
   const probe = window.__perfProbe = { nativeRaf: originalRaf, scheduled: 0, completed: 0, samples: [], active: null };
   window.requestAnimationFrame = (callback) => {
-    probe.scheduled++;
+    // escena.js queues its named `bucle` callback. Count that contract, not GSAP or this test's own rAFs.
+    if (callback.name === 'bucle') probe.scheduled++;
     return originalRaf((time) => {
       const sample = { reads: 0, writes: 0, redundantWrites: 0, writeBeforeRead: false };
       probe.active = sample;
@@ -95,6 +96,7 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
     }, async (page, context) => {
       await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
       await expect.poll(() => page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThan(0);
+      await expect(page.locator('html')).toHaveAttribute('data-bucle', 'pausado');
       const cdp = await context.newCDPSession(page);
       const before = await cdp.send('Performance.getMetrics');
       await page.evaluate(() => { window.__perfProbe.scheduled = 0; });
