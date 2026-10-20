@@ -108,13 +108,13 @@ El elemento `html` expone el estado de ejecución:
 
 ## Pruebas
 
-Para ejecutar `npm test` o `npm run test:visual` por primera vez, instala Chromium de Playwright después de `npm ci`:
+Para ejecutar `npm test` o `npm run test:visual` por primera vez, instala Chromium de Playwright después de `npm ci`. Fuera de Docker, Chromium también necesita sus dependencias de sistema Linux; este comando las instala con `apt`, por lo que requiere acceso de root:
 
 ```bash
-npx playwright install chromium
+npx playwright install --with-deps chromium
 ```
 
-Como alternativa, usa la imagen Docker fijada `mcr.microsoft.com/playwright:v1.63.0-noble` con `docker create --init --ipc=host`, como se muestra para las baselines visuales más abajo.
+Si no se cuenta con root o `apt`, usa la imagen Docker fijada `mcr.microsoft.com/playwright:v1.63.0-noble` con `docker create --init --ipc=host`, como se muestra para las baselines visuales más abajo.
 
 ```bash
 npm run validate      # Solo pruebas estáticas
@@ -127,6 +127,8 @@ La guarda de placeholders legales está en modo `warn`: informa los campos pendi
 Las pruebas que aún deben fallar intencionalmente se marcan con `test.fail()` y explican el paso que las eliminará; no conviertas una prueba esperada-roja en verde sin implementar el contrato.
 
 Las pruebas 3D aíslan cada prueba en su propio browser para reducir interferencias de SwiftShader; no se añadió una agrupación serial especial. CI usa `PW_WORKERS=1`; el valor local por defecto es `2`, y puede ajustarse como `PW_WORKERS=1 npm test` si el equipo tiene pocos recursos. La referencia de una ejecución limpia con dos workers fue aproximadamente 190–197 segundos; la duración puede variar con la carga de CPU.
+
+`npm run test:visual` es local y no se ejecuta en CI. Como estabiliza capturas con el timeout de expectativa predeterminado de 5 segundos bajo OpenGL por software, es sensible a la carga del equipo. Sus baselines son de Linux y solo se generan dentro del contenedor Playwright fijado. Si una captura vence el timeout sin diferencias de píxeles, la máquina estaba sobrecargada: vuelve a ejecutarla, sin aumentar los timeouts.
 
 Las baselines visuales son Linux y solo deben regenerarse en la imagen Docker fijada de Playwright. Ejemplo local:
 
