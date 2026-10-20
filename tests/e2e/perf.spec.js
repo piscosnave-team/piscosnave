@@ -90,7 +90,6 @@ function metric(metrics, name) {
 test.describe('P2-P5 runtime performance (I-14)', () => {
   test('P2 when the stage is off-screen the scene schedules no more than one frame and causes no idle layout/recalc work', async ({ playwright }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop 3D lifecycle probe');
-    expectedRed(test, 'E11', 'the current render loop schedules itself forever after #inicio has scrolled off screen');
     await withScene(playwright, testInfo, async (page) => {
       await page.addInitScript(installFrameProbe);
     }, async (page, context) => {
@@ -113,7 +112,6 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
 
   test('P3 visibility hidden pauses the loop and visible resumes it', async ({ playwright }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop 3D lifecycle probe');
-    expectedRed(test, 'E11', 'the current scene has no visibilitychange listener or data-bucle lifecycle state');
     await withScene(playwright, testInfo, async (page) => {
       await page.addInitScript(() => {
         let visibility = 'visible';
@@ -130,7 +128,6 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
 
   test('P3 a lost WebGL context marks the render loop paused', async ({ playwright }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop 3D lifecycle probe');
-    expectedRed(test, 'E11', 'context loss stops the current loop internally but does not expose data-bucle=pausado');
     await withScene(playwright, testInfo, async () => {}, async (page) => {
       await page.locator('#escena').dispatchEvent('webglcontextlost');
       await expect(page.locator('html')).toHaveAttribute('data-bucle', 'pausado');

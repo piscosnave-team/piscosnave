@@ -18,12 +18,18 @@ const trioArcosEl = [...document.querySelectorAll('.trio-arco')];
 
 /* La página se sirve en su versión estática (.estatica en el HTML); este módulo solo la sustituye por la 3D cuando todo lo que
    puede fallar ya salió bien (ver mejora() al final). Estado compartido con aEstatica(), que vuelve atrás si algo falla después. */
-let st = null, renderer = null, activo = false;
+let st = null, renderer = null, activo = false, bucleActivo = false, raf = 0, etapaEnVista = true, observaEtapa = null;
 const ESTILOS_3D = '.intro-a > *, .intro-b > *, .h-texto, .h-arco, .desliza, .luz, .nichos, .nicho, .nombre-fondo, .ed-texto, .ed-texto > *, .trio-cabeza, .trio-cabeza > *, .trio-arcos, .trio-arco, .trio-arco .respaldo, .slot .etiqueta, .trio-pie, .trio-pie > *, .pasos, .arrastra, .zona-arrastre';
 
 /* Vuelve a la versión estática: para el bucle, mata el pin, borra los estilos en línea que escribió la escena 3D y suelta WebGL */
 function aEstatica(motivo){
   activo = false;
+  bucleActivo = false;
+  if (raf) cancelAnimationFrame(raf);
+  raf = 0;
+  html.dataset.bucle = 'pausado';
+  observaEtapa?.disconnect();
+  observaEtapa = null;
   gsap.killTweensOf('.intro-a > *, .intro-b > *');
   if (st){ st.kill(true); st = null; }
   document.querySelectorAll(ESTILOS_3D).forEach(el=>el.removeAttribute('style'));
@@ -361,12 +367,26 @@ function frame(){
   brilloLuz.position.set(pos.x + Math.cos(t*0.7)*1.6, pos.y + 0.8, 2.2);
   camera.position.x = lerp(camera.position.x, mx*0.16, 0.05); camera.position.y = lerp(camera.position.y, -my*0.1, 0.05); camera.lookAt(0,0,0);
   renderer.render(scene, camera);
-  requestAnimationFrame(bucle);
 }
 /* un fallo en un fotograma devuelve la página a la versión estática en lugar de dejar la escena congelada */
 function bucle(){
-  if (!activo) return;
-  try { frame(); } catch(e){ console.warn('NAVE: la escena 3D falló, vuelve la versión estática', e); aEstatica('error'); }
+  raf = 0;
+  if (!activo || !bucleActivo) return;
+  try { frame(); } catch(e){ console.warn('NAVE: la escena 3D falló, vuelve la versión estática', e); aEstatica('error'); return; }
+  if (activo && bucleActivo) raf = requestAnimationFrame(bucle);
+}
+function pausaBucle(){
+  bucleActivo = false;
+  if (raf) cancelAnimationFrame(raf);
+  raf = 0;
+  html.dataset.bucle = 'pausado';
+}
+function reanudaBucle(){
+  if (!activo || document.visibilityState !== 'visible' || !etapaEnVista || bucleActivo) return;
+  reloj.getDelta();
+  bucleActivo = true;
+  html.dataset.bucle = 'activo';
+  raf = requestAnimationFrame(bucle);
 }
 
 /* ===================== Mejora a 3D =====================
@@ -382,7 +402,18 @@ function mejora(){
   html.classList.add('con-3d');
   ST.refresh();
   activo = true;
-  bucle();
+  etapaEnVista = true;
+  observaEtapa = new IntersectionObserver(([entrada])=>{
+    etapaEnVista = entrada.isIntersecting;
+    if (etapaEnVista) reanudaBucle();
+    else pausaBucle();
+  });
+  observaEtapa.observe(etapa);
+  document.addEventListener('visibilitychange', ()=>{
+    if (document.visibilityState === 'visible') reanudaBucle();
+    else pausaBucle();
+  });
+  reanudaBucle();
   MODO.fija('3d');
 }
 mejora();
