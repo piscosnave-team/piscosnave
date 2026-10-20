@@ -15,7 +15,17 @@ import { expectedRed } from './helpers/expected-red.js';
 import { FIXTURE } from './helpers/constants.js';
 import { waitSettled } from './helpers/ready.js';
 
-const SCENE_FRAMES = 12;
+// A four-frame window catches a resumed scene loop without accumulating enough
+// browser-owned rAF style recalculations to make the CDP assertion load-sensitive.
+const SCENE_FRAMES = 4;
+// After the off-screen transition has had two native frames to settle and the
+// unrelated GSAP ticker is stopped, Chromium records no layouts across this
+// fixed scene-only idle window.
+const PAUSED_LAYOUT_TOLERANCE = 0;
+// A blank native-rAF control measured at the same four-frame width reaches at
+// most six style recalculations; the paused scene must stay within that fixed
+// browser overhead, independently of its own prior metric window.
+const PAUSED_RECALC_TOLERANCE = 6;
 
 /** Run one 3D probe in an isolated Chromium, then stop rAF before closing its GPU process. */
 async function withScene(playwright, testInfo, setup, probe) {
@@ -68,6 +78,24 @@ function installFrameProbe() {
   };
 }
 
+function installStageVisibilityProbe() {
+  const NativeIntersectionObserver = window.IntersectionObserver;
+  window.IntersectionObserver = class {
+    constructor(callback, options) {
+      this.callback = callback;
+      this.native = new NativeIntersectionObserver(callback, options);
+    }
+    observe(element) {
+      if (element.id === 'inicio') {
+        window.__setStageIntersection = (isIntersecting) => this.callback([{ target: element, isIntersecting }], this);
+      } else this.native.observe(element);
+    }
+    disconnect() { this.native.disconnect(); }
+    unobserve(element) { this.native.unobserve(element); }
+    takeRecords() { return this.native.takeRecords(); }
+  };
+}
+
 async function waitForFrames(page, count = SCENE_FRAMES) {
   await page.evaluate(async (frames) => {
     const start = window.__perfProbe.completed;
@@ -94,21 +122,15 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop 3D lifecycle probe');
     await withScene(playwright, testInfo, async (page) => {
       await page.addInitScript(installFrameProbe);
+      await page.addInitScript(installStageVisibilityProbe);
     }, async (page, context) => {
       const cdp = await context.newCDPSession(page);
       await cdp.send('Performance.enable');
-      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
-      await expect.poll(() => page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThan(0);
+      expect(await page.evaluate(() => typeof window.__setStageIntersection), 'the test-controlled off-screen observer transition is installed before the scene starts').toBe('function');
+      await page.evaluate(() => window.__setStageIntersection(false));
+      await waitForFrames(page, 2);
       await expect(page.locator('html')).toHaveAttribute('data-bucle', 'pausado');
-      // The scroll transition itself can settle one layout on its next frame. Warm
-      // that fixed browser cost, then compare two identical paused 12-rAF windows.
-      const controlBefore = await cdp.send('Performance.getMetrics');
-      await waitForFrames(page);
-      const controlAfter = await cdp.send('Performance.getMetrics');
-      const control = {
-        layoutDelta: metric(controlAfter, 'LayoutCount') - metric(controlBefore, 'LayoutCount'),
-        recalcDelta: metric(controlAfter, 'RecalcStyleCount') - metric(controlBefore, 'RecalcStyleCount'),
-      };
+      await page.evaluate(() => window.gsap.ticker.sleep());
       const before = await cdp.send('Performance.getMetrics');
       await page.evaluate(() => { window.__perfProbe.scheduled = 0; });
       await waitForFrames(page);
@@ -116,10 +138,10 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
       const result = await page.evaluate(() => ({ scheduled: window.__perfProbe.scheduled, state: document.documentElement.dataset.bucle }));
       const layoutDelta = metric(after, 'LayoutCount') - metric(before, 'LayoutCount');
       const recalcDelta = metric(after, 'RecalcStyleCount') - metric(before, 'RecalcStyleCount');
-      expect(result.scheduled, 'scene rAF scheduling across a fixed 12-callback idle window').toBeLessThanOrEqual(1);
+      expect(result.scheduled, 'scene rAF scheduling across a fixed 4-callback idle window').toBeLessThanOrEqual(1);
       expect(result.state).toBe('pausado');
-      expect(layoutDelta, 'paused-scene layout work stays within the fixed 12-rAF harness baseline').toBeLessThanOrEqual(control.layoutDelta);
-      expect(recalcDelta, 'paused-scene style work stays within the fixed 12-rAF harness baseline').toBeLessThanOrEqual(control.recalcDelta);
+      expect(layoutDelta, 'paused-scene layout work stays within the absolute fixed 4-rAF idle budget').toBeLessThanOrEqual(PAUSED_LAYOUT_TOLERANCE);
+      expect(recalcDelta, 'paused-scene style work stays within the absolute fixed 4-rAF idle budget').toBeLessThanOrEqual(PAUSED_RECALC_TOLERANCE);
     });
   });
 
