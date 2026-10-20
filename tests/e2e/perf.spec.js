@@ -180,7 +180,6 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
   });
 
   test('P4 crossing desktop and narrow portrait breakpoints reapplies the renderer DPR cap', async ({ playwright }, testInfo) => {
-    expectedRed(test, 'E15', 'escena.js only applies the mobile DPR cap during renderer construction, not resize');
     test.skip(testInfo.project.name !== 'desktop', 'desktop resize probe');
     await withScene(playwright, testInfo, async (page) => {
       await page.addInitScript(() => {

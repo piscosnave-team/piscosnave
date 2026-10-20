@@ -305,7 +305,7 @@ function enCaja(r, cx, fAlto){
   const base = aMundo(cx, r.bottom - r.height*0.035);
   return {x:base.x, y:base.y + MITAD*s, s};
 }
-function ajusta(){ renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }
+function ajusta(){ renderer.setPixelRatio(Math.min(devicePixelRatio, mobile() ? 1.5 : 2)); renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }
 addEventListener('resize', ajusta); ajusta();
 
 const reloj = new THREE.Clock(); let intro = 0;
