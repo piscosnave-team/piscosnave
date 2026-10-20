@@ -98,7 +98,7 @@ const sueltaPuntero = ()=>{ puntero = false; };
 addEventListener('pointerdown', ()=>{ puntero = true; teclado = false; }, true);
 addEventListener('pointerup', sueltaPuntero, true); addEventListener('pointercancel', sueltaPuntero, true);
 addEventListener('keydown', ()=>{ teclado = true; sueltaPuntero(); }, true);
-addEventListener('blur', sueltaPuntero, true);
+addEventListener('blur', ev=>{ if (ev.target === window) sueltaPuntero(); }, true);
 addEventListener('lostpointercapture', sueltaPuntero, true);
 document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState !== 'visible') sueltaPuntero(); });
 etapa.addEventListener('focusin', ev=>{ if (!puntero || teclado) irAlSegmento(ev.target); });

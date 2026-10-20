@@ -329,7 +329,6 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
   });
 
   test('E15 a descendant blur during a pressed stage control does not clear the pointer guard before another segment receives focus', async ({ page }) => {
-    expectedRed(test, 'E15', 'the capture-phase blur listener clears the pointer guard for a blurred descendant, so focusin can jump to another segment before pointerup');
     const pin = await open3d(page);
     await scrollToP(page, pin, 0);
     const pressed = page.locator(KEYS['hero-descubrir']);
