@@ -15,6 +15,30 @@ import { waitReady } from './ready.js';
  *   badResponses    HTTP status >= 400
  */
 export const test = base.extend({
+  /**
+   * A SwiftShader page owns its Chromium process. Closing only a shared-worker context leaves
+   * queued GPU work draining after the test, which can starve the next 3D page's waitSettled.
+   * Reduced-motion and JavaScript-disabled paths never render the scene, so they retain the
+   * shared worker browser.
+   */
+  page: async ({ playwright, browser, launchOptions, baseURL, timezoneId, locale, colorScheme, serviceWorkers, viewport, deviceScaleFactor, isMobile, hasTouch, reducedMotion, javaScriptEnabled }, use) => {
+    const renders3d = reducedMotion !== 'reduce' && javaScriptEnabled !== false;
+    const own = renders3d ? await playwright.chromium.launch({ args: launchOptions?.args }) : null;
+    const context = await (own ?? browser).newContext({ baseURL, timezoneId, locale, colorScheme, serviceWorkers, viewport, deviceScaleFactor, isMobile, hasTouch, reducedMotion, javaScriptEnabled });
+    const page = await context.newPage();
+    try {
+      await use(page);
+    } finally {
+      if (renders3d) {
+        await Promise.race([
+          page.evaluate(() => { window.requestAnimationFrame = () => 0; }).catch(() => {}),
+          new Promise((resolve) => setTimeout(resolve, 3_000)),
+        ]);
+      }
+      await context.close().catch(() => {});
+      await own?.close().catch(() => {});
+    }
+  },
   errors: async ({ page }, use) => {
     const errors = { pageErrors: [], consoleErrors: [], failedRequests: [], badResponses: [] };
     page.on('pageerror', (e) => errors.pageErrors.push(String(e.message || e)));
