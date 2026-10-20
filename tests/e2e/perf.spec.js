@@ -11,7 +11,6 @@
  * @see ../../js/escena.js
  */
 import { expect, test } from './helpers/page.js';
-import { expectedRed } from './helpers/expected-red.js';
 import { FIXTURE } from './helpers/constants.js';
 import { waitSettled } from './helpers/ready.js';
 
@@ -84,7 +83,9 @@ async function waitForFrames(page, count = SCENE_FRAMES) {
 }
 
 function metric(metrics, name) {
-  return metrics.metrics.find((entry) => entry.name === name)?.value ?? 0;
+  const value = metrics.metrics.find((entry) => entry.name === name)?.value;
+  if (value === undefined) throw new Error(`CDP Performance metric ${name} is absent; enable the Performance domain before sampling`);
+  return value;
 }
 
 test.describe('P2-P5 runtime performance (I-14)', () => {
@@ -97,6 +98,7 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
       await expect.poll(() => page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThan(0);
       await expect(page.locator('html')).toHaveAttribute('data-bucle', 'pausado');
       const cdp = await context.newCDPSession(page);
+      await cdp.send('Performance.enable');
       const before = await cdp.send('Performance.getMetrics');
       await page.evaluate(() => { window.__perfProbe.scheduled = 0; });
       await waitForFrames(page);
@@ -107,6 +109,27 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
       expect(result.scheduled, 'scene rAF scheduling across a fixed 12-callback idle window').toBeLessThanOrEqual(1);
       expect(result.state).toBe('pausado');
       expect({ layoutDelta, recalcDelta }, 'CDP idle-window layout/style deltas').toEqual({ layoutDelta: 0, recalcDelta: 0 });
+    });
+  });
+
+  test('P2 the CDP layout/style counters report a forced layout control', async ({ playwright }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'desktop CDP performance probe');
+    await withScene(playwright, testInfo, async () => {}, async (page, context) => {
+      const cdp = await context.newCDPSession(page);
+      await cdp.send('Performance.enable');
+      const before = await cdp.send('Performance.getMetrics');
+      await page.evaluate(() => {
+        const probe = document.createElement('div');
+        document.body.append(probe);
+        probe.style.width = '1px';
+        void probe.offsetWidth;
+        probe.style.width = '2px';
+        void probe.offsetWidth;
+        probe.remove();
+      });
+      const after = await cdp.send('Performance.getMetrics');
+      expect(metric(after, 'LayoutCount') - metric(before, 'LayoutCount'), 'forced layout must produce an observable CDP delta').toBeGreaterThan(0);
+      expect(metric(after, 'RecalcStyleCount') - metric(before, 'RecalcStyleCount'), 'forced style recalculation must produce an observable CDP delta').toBeGreaterThan(0);
     });
   });
 
