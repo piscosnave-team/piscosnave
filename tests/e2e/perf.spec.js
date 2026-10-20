@@ -136,7 +136,6 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
 
   test('P4 renderer DPR is capped at 1.5 on mobile and 2 on desktop', async ({ playwright }, testInfo) => {
     test.skip(!['desktop', 'mobile-375'].includes(testInfo.project.name), 'DPR probe');
-    if (testInfo.project.name === 'mobile-375') expectedRed(test, 'E11', 'mobile renderer.setPixelRatio currently permits 1.75');
     await withScene(playwright, testInfo, async () => {}, async (page) => {
       const pixelRatio = await page.evaluate(() => {
         const canvas = document.getElementById('escena');
@@ -148,7 +147,6 @@ test.describe('P2-P5 runtime performance (I-14)', () => {
 
   test('P5 each scene frame reads layout before style writes and skips unchanged style values', async ({ playwright }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop 3D frame probe');
-    expectedRed(test, 'E11', 'pintaDom writes styles before later layout reads and repeats unchanged style assignments every frame');
     await withScene(playwright, testInfo, async () => {}, async (page) => {
       const source = await page.evaluate(() => fetch('js/escena.js').then((response) => response.text()));
       const pintaDom = source.slice(source.indexOf('function pintaDom'), source.indexOf('/* ===================== 3D'));

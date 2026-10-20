@@ -130,6 +130,12 @@ function cascada(hijos, e, desde, paso, hasta){
   });
 }
 function pintaDom(p){
+  /* Todas las mediciones ocurren antes de escribir estilos; mezclar ambas cosas en el fotograma fuerza recálculos. */
+  const r = hCaja.getBoundingClientRect();
+  const rTrio = trioArcosEl.map(el=>el.getBoundingClientRect());
+  const nr = nichosEl.getBoundingClientRect();
+  const rEt = etapa.getBoundingClientRect();
+  const nichosPos = {left:nichosEl.offsetLeft, top:nichosEl.offsetTop, height:nichosEl.offsetHeight};
   const W = innerWidth, H = innerHeight, e = p - 1;
   /* presencia */
   const ht = 1 - sstep(0.04, 0.3, p);
@@ -138,7 +144,6 @@ function pintaDom(p){
   desliza.style.opacity = 1 - sstep(0, 0.1, p);
   hArcoEl.style.opacity = 1 - sstep(0.15, 0.4, p);
   /* luz: crece desde la base del arco hasta llenar la pantalla */
-  const r = hCaja.getBoundingClientRect();
   const aw = Math.min(r.width, r.height*0.64), ax = r.left + r.width/2;
   const a1 = sstep(0.18, 0.55, p), a2 = sstep(0.5, 0.95, p), half = aw/2*a1;
   const top = lerp(lerp(r.bottom, r.top, a1), 0, a2), bottom = lerp(H - r.bottom, 0, a2);
@@ -163,10 +168,9 @@ function pintaDom(p){
   /* las tres: el arco de Nii viaja a su lugar y llegan las otras dos con el mismo telón */
   trioArcos.style.pointerEvents = e > 3.3 ? 'auto' : 'none';
   const viaje = sstep(3.0, 3.5, e);
-  const rTrio = trioArcosEl.map(el=>el.getBoundingClientRect());
   if (viaje > 0){
-    const s3 = rTrio[2], ox = nichosEl.offsetLeft, oy = nichosEl.offsetTop, oh = nichosEl.offsetHeight;
-    nichosEl.style.transform = `translate3d(${(s3.left - ox)*viaje}px,${(s3.top - oy)*viaje}px,0) scale(${lerp(1, s3.height/oh, viaje)})`;
+    const s3 = rTrio[2];
+    nichosEl.style.transform = `translate3d(${(s3.left - nichosPos.left)*viaje}px,${(s3.top - nichosPos.top)*viaje}px,0) scale(${lerp(1, s3.height/nichosPos.height, viaje)})`;
   } else nichosEl.style.transform = '';
   nichosEl.style.opacity = 1 - sstep(0.96, 1, viaje);
   const rev = [sstep(3.1, 3.4, e), sstep(3.2, 3.5, e), sstep(0.94, 1, viaje)];
@@ -184,15 +188,15 @@ function pintaDom(p){
   const enCol = sstep(0.85, 1.0, p)*(1 - sstep(2.85, 3.0, e));
   pasos.style.opacity = enCol; arrastra.style.opacity = enCol;
   zona.style.display = enCol > 0.5 ? 'block' : 'none';
-  if (enCol > 0.5){ const nr = nichosEl.getBoundingClientRect(); Object.assign(zona.style, {left:nr.left+'px', top:nr.top+'px', width:nr.width+'px', height:nr.height+'px'}); }
-  return {trio: rTrio, rev, fijo};
+  if (enCol > 0.5) Object.assign(zona.style, {left:nr.left+'px', top:nr.top+'px', width:nr.width+'px', height:nr.height+'px'});
+  return {trio: rTrio, rev, fijo, rEt, rH:r, rN:nr};
 }
 
 /* ===================== 3D ===================== */
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(26, innerWidth/innerHeight, 0.1, 100);
 const CAMZ = 10; camera.position.set(0, 0, CAMZ);
-renderer.setPixelRatio(Math.min(devicePixelRatio, mobile() ? 1.75 : 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, mobile() ? 1.5 : 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 scene.add(new THREE.HemisphereLight(0xfffaf4, 0x6a4550, 1.25));
 const key = new THREE.DirectionalLight(0xffffff, 1.15); key.position.set(2.5, 3.5, 6); scene.add(key);
@@ -308,10 +312,9 @@ function frame(){
   if (!tomando){ arrastre += vel; vel *= 0.88; arrastre = lerp(arrastre, 0, 1 - Math.exp(-dt*2)); }
   arrastre = Math.max(-1.2, Math.min(1.2, arrastre));
 
-  const rEt = etapa.getBoundingClientRect(), {vh, vw} = vista();
+  const {rEt, rH, rN} = dom, {vh, vw} = vista();
   const desp = -(rEt.top/innerHeight)*vh;
   const vivaEtapa = rEt.bottom > innerHeight*0.04;
-  const rH = hCaja.getBoundingClientRect(), rN = nichosEl.getBoundingClientRect();
   const cxs = [0.17, 0.5, 0.83], alturas = mov ? [0.78, 0.88, 0.8] : [0.74, 0.84, 0.76];
   const hero = [0,1,2].map(i=>enCaja(rH, rH.left + rH.width*cxs[i], alturas[i]));
   const nicho = enCaja(rN, rN.left + rN.width/2, 0.86);
