@@ -328,6 +328,25 @@ test.describe('K2/K3/K4 keyboard walk in 3D mode (U-05, I-08)', () => {
     }
   });
 
+  test('E15 a descendant blur during a pressed stage control does not clear the pointer guard before another segment receives focus', async ({ page }) => {
+    expectedRed(test, 'E15', 'the capture-phase blur listener clears the pointer guard for a blurred descendant, so focusin can jump to another segment before pointerup');
+    const pin = await open3d(page);
+    await scrollToP(page, pin, 0);
+    const pressed = page.locator(KEYS['hero-descubrir']);
+    await pressed.focus();
+    const box = await pressed.boundingBox();
+    expect(box, 'the pressed stage control has click geometry').not.toBeNull();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    try {
+      const before = await page.evaluate(() => scrollY);
+      await page.evaluate((selector) => document.querySelector(selector).focus({ preventScroll: true }), KEYS['slot-sunqu']);
+      expect(await page.evaluate(() => scrollY), 'a descendant blur during the active pointer interaction does not jump the pinned stage before pointerup').toBe(before);
+    } finally {
+      await page.mouse.up().catch(() => {});
+    }
+  });
+
   test('K3 Enter on the Sunqu slot picks it, Enter on #ctaPedido opens the wa.me chat with the edition (keyboard order path)', async ({ page }) => {
     await open3d(page);
     const toSlot = await tabTo(page, '.slot[data-ed="Sunqu"]');
