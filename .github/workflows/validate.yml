@@ -65,6 +65,9 @@ jobs:
 
       - name: Run tests (static layer, then e2e)
         run: npm test
+        env:
+          # Public ubuntu-24.04 has 4 vCPU; SwiftShader is CPU-heavy, so serialize 3D tests (local default stays 2).
+          PW_WORKERS: 1
         timeout-minutes: 20
 
       - name: Upload Playwright report
