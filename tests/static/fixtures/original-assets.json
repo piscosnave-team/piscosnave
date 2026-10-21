@@ -1,0 +1,102 @@
+{
+  "_source": "Decoded from the data URIs of index.html at commit a20e3de (the pre-refactor page). E5 extracts these bytes verbatim; derived hero-960/hero-640 are not listed here.",
+  "totalBytes": 979980,
+  "files": [
+    {
+      "file": "assets/img/hero-1536.webp",
+      "bytes": 366396,
+      "sha256": "68fe0db499404b3b2d0704571cef30d3b923d520b3b97d25a18da58f9009aec4",
+      "width": 1536,
+      "height": 1024,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/trio-donaire.webp",
+      "bytes": 74506,
+      "sha256": "655341fc6435429fc97fe01baaf514d442105d2293f5724e963cff99dc4a3a68",
+      "width": 406,
+      "height": 900,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/trio-sunqu.webp",
+      "bytes": 119076,
+      "sha256": "edddd5f97fc01f83547405af38e933d77d704ee862d2570fd89da069ebc74714",
+      "width": 455,
+      "height": 900,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/trio-nii.webp",
+      "bytes": 97636,
+      "sha256": "3e08ecaff9a2b0e1b98cda48133f6426bdb723480c5111ed2abd75da87b8f2a4",
+      "width": 413,
+      "height": 900,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/donaire-body.webp",
+      "bytes": 71144,
+      "sha256": "0f0d17abdf6237d0e01e5415df2343d8202a3e94881d2caeb3ebdae38d112167",
+      "width": 500,
+      "height": 917,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/donaire-brillo.webp",
+      "bytes": 10764,
+      "sha256": "231d681d92bff59fe49203d7c0f65ea1f080e98668e868c2202e34d58e5bf9e9",
+      "width": 500,
+      "height": 917,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/sunqu-body.webp",
+      "bytes": 117630,
+      "sha256": "d52fada1f5457e168888fb846f9be291b3bab61ab724c1f1f073fc0313f0076e",
+      "width": 520,
+      "height": 953,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/sunqu-brillo.webp",
+      "bytes": 5868,
+      "sha256": "ad5259ae69b7497011f04e5a3748a1a587147c60bfe6a6a3f1d957b1695966a7",
+      "width": 520,
+      "height": 953,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/sunqu-extra.webp",
+      "bytes": 7992,
+      "sha256": "12acb51eb99ad6f2eae6b0879f879384dc362f7d8fe20b5aba6ea1796e249311",
+      "width": 520,
+      "height": 953,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/nii-body.webp",
+      "bytes": 95784,
+      "sha256": "129b2b73e3d64dc35b900a50d49fa7e23e6d072f8ffa02d584342ded2c99d31e",
+      "width": 324,
+      "height": 997,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/nii-brillo.webp",
+      "bytes": 1806,
+      "sha256": "1ac5d0c9fc6f7234b3ab5c4e368bbb47d3e239c36a60eb1d76a51971e758910e",
+      "width": 324,
+      "height": 997,
+      "format": "webp"
+    },
+    {
+      "file": "assets/img/tex/nii-extra.webp",
+      "bytes": 11378,
+      "sha256": "d0994e06115278a7bfaf877f73139b13f2eb99d1c372350e6f74e13ee51df956",
+      "width": 324,
+      "height": 997,
+      "format": "webp"
+    }
+  ]
+}

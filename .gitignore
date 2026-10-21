@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Owner-approved GSAP self-hosting output (never commit library bytes)
+vendor/gsap/
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
